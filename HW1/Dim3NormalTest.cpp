@@ -18,7 +18,7 @@ int power(int x, int a) {
     // iterates to the power provided in order to determine the expression x^a
     for (int i = 0; i < a; ++i) {
         val *= x;
-
+    }
     return val;
 }
     
@@ -34,8 +34,8 @@ int Uniform(int w) {
 }
 
 
-int test(int U[]) {
-    double delta, M = 0;
+int test(double U[]) {
+    double delta, lower, upper, M = 0;
     int pw = 3, c=0;
 
     // split the unit interval into 40 disjoint subintervals of equal length 
@@ -60,21 +60,21 @@ int test(int U[]) {
 
 
 int main() {
-    double m, w, n, U[3];
+    double Z, p, q, mu, sigma, U[3];
+    int w, n, m;
     int* X;
 
     // Allocate space for X[1],... X[64000] and initialize each to 0.
     X = (int*)calloc(64000, sizeof(int));
 
     // allow the user to select their specific number generator 
-    std::cout << "Which random number generator would you like to implement";
-    std::cout << "(1) MTUniform";
-    std::cout << "(2) MWCUniform";
-    std::cin >> w;
+    printf("Which random number generator would you like to implement");
+    printf("(1) MTUniform");
+    printf("(2) MWCUniform");
+    w = GetInteger("Enter your selection: ");
 
-    std::cout << "How many simulations would you like to run (suggested 10 million)";
-    std::cin >> n;
-    
+    // select the number of simulations you would like to run
+    n = GetInteger("How many simulations would you like to run (suggested 10 million): ");
 
     // running n simulations (suggested 10, 50, 100 million) to test normalacy
     for (int i = 0; i < n; ++i) {
@@ -91,7 +91,7 @@ int main() {
     
     }
 
-    // Below code adopted from C. Douglas Howard.
+    // Below code adopted from C. Douglas Howard // 
 
     // Now each X[m] should be Binomial (n, p), where p = 1/40320.
     p = 1.0 / 64000.0;
@@ -109,7 +109,7 @@ int main() {
     // Create the TeX files for viewing.
     NormalHistogram(0, 40, 1);
     
-    std::cout << "The simulation is complete...";
+    printf("The simulation is complete...");
     
     Exit ();
 }
