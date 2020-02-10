@@ -1,4 +1,5 @@
-
+#include <iostream>
+#include <algorithm> 
 #include "Functions.h"
 
 // MTUniform is the Mersenne twister, MWCUniform is the multiply with carry
@@ -7,8 +8,8 @@
 
 double MWCUniform (unsigned int);
 unsigned int Temper (unsigned int);
+
 int power (int, int);
-int Uniform(int);
 int test(int arr[]);
 
 
@@ -23,7 +24,7 @@ int power(int x, int a) {
 }
     
 
-int Uniform(int w) {
+double Uniform(int w) {
     // determines which uniform random number generator is to be used either MTUniform (Mersenne twister) or MWCUniform (multiply with carry)
     if (w == 1) {
         return MTUniform(0);
@@ -63,14 +64,15 @@ int main() {
     double Z, p, q, mu, sigma, U[3];
     int w, n, m;
     int* X;
+    double Uniform(int);
 
     // Allocate space for X[1],... X[64000] and initialize each to 0.
     X = (int*)calloc(64000, sizeof(int));
 
     // allow the user to select their specific number generator 
-    printf("Which random number generator would you like to implement");
-    printf("(1) MTUniform");
-    printf("(2) MWCUniform");
+    printf("Which random number generator would you like to implement \n");
+    printf("(1) MTUniform \n");
+    printf("(2) MWCUniform \n");
     w = GetInteger("Enter your selection: ");
 
     // select the number of simulations you would like to run
@@ -84,11 +86,12 @@ int main() {
         }
 
         // Compute the value of M provided the testing instructions
+        std::sort(U, U + 3);
         m = test(U);
 
         // Increment the appropriate X by 1.
         ++ X[m];
-    
+
     }
 
     // Below code adopted from C. Douglas Howard // 
@@ -101,8 +104,8 @@ int main() {
 
     // If n is large, (X[m] - mu)/sigma should be approximately Normal(0,1).
     // Normalize and add to a normal histogram.
-    for (m = 1; m <= 64000; ++m) {
-        Z = (X[m] - mu) / sigma;
+    for (int i = 0; i <= 64000; ++i) {
+        Z = (X[i] - mu) / sigma;
         NormalHistogram(Z, 40, 0);
     }
 
