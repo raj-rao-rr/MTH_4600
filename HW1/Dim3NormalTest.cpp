@@ -8,9 +8,9 @@
 
 double MWCUniform (unsigned int);
 unsigned int Temper (unsigned int);
-
-int power (int, int);
-int test(int arr[]);
+int power(int, int);
+int test(double *);
+double Uniform(int);
 
 
 int power(int x, int a) {
@@ -35,21 +35,19 @@ double Uniform(int w) {
 }
 
 
-int test(double U[]) {
-    double delta, lower, upper, M = 0;
-    int pw = 3, c=0;
-
+int test(double *U) {
     // split the unit interval into 40 disjoint subintervals of equal length 
-    delta = 1 / 40;
+    double lower, upper, delta = 0.025, M = 0;
+    int pw = 3, c = 0;
 
     // k iterates from 0 < k < 40 for each disjoint interval
-    for (int k = 0; k < 40; ++k) {
+    for (double k = 0; k < 40; ++k) {
         // creating the bounds for the restricted interval I, (k*delta, (k+1)*delta)
         lower = k * delta;
-        upper = (k + 1) * delta;
+        upper = (k + 1.0) * delta;
 
         // if we have that our uniform random variable U[c] at index (c) is in the restricted interval I denoted by the lower/upper levels  
-        if ((U[c] > lower) && (U[c] <= upper) && pw > 0) {
+        if ((U[c] > lower) && (U[c] <= upper) && (pw > 0)) {
             // if the condition is met we form our M through the sumproduct of k's and 40 raised to the powers [2,1,0] in that order
             M += k * power(40, pw - 1);
             --pw;
@@ -64,7 +62,6 @@ int main() {
     double Z, p, q, mu, sigma, U[3];
     int w, n, m;
     int* X;
-    double Uniform(int);
 
     // Allocate space for X[1],... X[64000] and initialize each to 0.
     X = (int*)calloc(64000, sizeof(int));
@@ -88,7 +85,7 @@ int main() {
         // Compute the value of M provided the testing instructions
         std::sort(U, U + 3);
         m = test(U);
-
+        
         // Increment the appropriate X by 1.
         ++ X[m];
 
