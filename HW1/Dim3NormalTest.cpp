@@ -87,7 +87,7 @@ int main() {
         m = test(U);
 
         // Increment the appropriate X by 1.
-        X[m] ++;
+        ++ X[m];
     
     }
 
