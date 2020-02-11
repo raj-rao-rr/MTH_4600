@@ -6,7 +6,6 @@
 
 // This function is found below.
 int power(int, int);
-int test(double *);
 
 
 // MTUniform is the Mersenne twister, MWCUniform is the multiply with carry
@@ -37,45 +36,9 @@ double Uniform(int w) {
 }
 
 
-int test(double *x) {
-    // split the unit interval into 40 disjoint subintervals of equal length 
-    double lower, upper, delta = 0.025;
-    int pw = 3, c = 0, M1, M2, M3, M;
-
-    /*M1 = int(MWCUniform(0) / 0.025) * 40 * 40;
-    M2 = int(MWCUniform(0) / 0.025) * 40;
-    M3 = int(MWCUniform(0) / 0.025);
-    M = M1 + M2 + M3;*/
-
-    M = 0;
-
-    for (int i = 0; i < 3; i++) {
-        M += (int(x[i] / delta) * power(40, pw - 1));
-        --pw;
-    }
-
-
-    //// k iterates from 0 < k < 40 for each disjoint interval
-    //for (double k = 0; k < 40; k++) {
-    //    // creating the bounds for the restricted interval I, (k*delta, (k+1)*delta]
-    //    lower = k * delta;
-    //    upper = (k + 1.0) * delta;
-
-    //    // if we have that our uniform random variable U[c] at index (c) is in the restricted interval I denoted by the lower/upper levels we consider M_1, M_2, M_3  
-    //    if ((x[c] > lower) && (x[c] <= upper) && (pw > 0)) {
-    //        // if the condition is met we form our M through the sumproduct of k's and 40 raised to the powers [2,1,0] in that order
-    //        M += (k * power(40, pw - 1));
-    //        --pw;
-    //        ++c;
-    //    }
-    //}
-    return M;
-}
-
-
 int main() {
-    double Z, p, q, mu, sigma, U[3];
-    int w, n, m;
+    double Z, p, q, mu, sigma, U[3], delta = 0.025;
+    int w, n, M1, M2, M3, M, pw;
     double Uniform(int);
     
     // Allocate space for X[1],... X[64000] and initialize each to 0.
@@ -97,12 +60,21 @@ int main() {
             U[j] = Uniform(w);
         }
 
+        /*M1 = int(MWCUniform(0) / 0.025) * 40 * 40;
+        M2 = int(MWCUniform(0) / 0.025) * 40;
+        M3 = int(MWCUniform(0) / 0.025);
+        M = M1 + M2 + M3;*/
+
+        M = 0;
+        pw = 3;
         // Compute the value of M provided the testing instructions
-        std::sort(U, U + 3);
-        m = test(U);       
+        for (int i = 0; i < 3; i++) {
+            M += (int(U[i] / delta) * power(40, pw - 1));
+            --pw;
+        }
 
         // Increment the appropriate X by 1.
-        ++ X[m];
+        ++ X[M];
     }
 
     // Now each X[m] should be Binomial (n, p), where p = 1/40320.
