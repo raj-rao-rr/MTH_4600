@@ -3,15 +3,15 @@
 #include <fstream>
 #include "Functions.h"
 
+
+// This function is found below.
+int power(int, int);
+int test(double arr[]);
+
 // MTUniform is the Mersenne twister, MWCUniform is the multiply with carry
 //    generator that we discussed in class.
-
-
 double MWCUniform (unsigned int);
 unsigned int Temper (unsigned int);
-//int power(int, int);
-//int test(double *);
-//double Uniform(int);
 
 
 int power(int x, int a) {
@@ -30,31 +30,29 @@ double Uniform(int w) {
     if (w == 1) {
         return MTUniform(0);
     }
-    else if (w == 2) {
-        return MWCUniform(0);
-    }
     else {
-        return 0;
+        return MWCUniform(0);
     }
 }
 
 
-int test(double *U) {
+int test(double U[3]) {
     // split the unit interval into 40 disjoint subintervals of equal length 
     double lower, upper, delta = 0.025;
-    int pw = 3, c = 0, M = 0;
+    int pw = 3, c = 0, M1, M2, M3, M;
 
     /*M1 = int(MWCUniform(0) / 0.025) * 40 * 40;
     M2 = int(MWCUniform(0) / 0.025) * 40;
     M3 = int(MWCUniform(0) / 0.025);
     M = M1 + M2 + M3;*/
 
+    M = 0;
+
     for (int i = 0; i < 3; i++) {
-        std::cout << "Vector " << U[i] << "\n";
-        std::cout << "Sample " << MWCUniform(0) << "\n";
-        M += int(MWCUniform(0) / delta) * power(40, pw - 1);
+        M += int(U[i] / delta) * power(40, pw - 1);
         --pw;
     }
+
 
     //// k iterates from 0 < k < 40 for each disjoint interval
     //for (double k = 0; k < 40; k++) {
@@ -77,6 +75,7 @@ int test(double *U) {
 int main() {
     double Z, p, q, mu, sigma, U[3];
     int w, n, m;
+    double Uniform(int);
     
     // Allocate space for X[1],... X[64000] and initialize each to 0.
     int X[64000] = { };
@@ -103,7 +102,6 @@ int main() {
 
         // Increment the appropriate X by 1.
         ++ X[m];
-        break;
     }
 
     // Now each X[m] should be Binomial (n, p), where p = 1/40320.
