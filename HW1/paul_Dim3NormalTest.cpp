@@ -27,7 +27,7 @@ int main() {
       M3 = int(MWCUniform(0) / 0.025);
       Triplet = M1 + M2 + M3;
       ++X[Triplet];
-      
+
    }
 
 

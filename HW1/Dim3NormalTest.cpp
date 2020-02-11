@@ -112,7 +112,7 @@ int main() {
 
     // If n is large, (X[m] - mu)/sigma should be approximately Normal(0,1).
     // Normalize and add to a normal histogram.
-    for (int i = 0; i <= 64000; ++i) {
+    for (int i = 0; i < 64000; ++i) {
         Z = (X[i] - mu) / sigma;
         NormalHistogram(Z, 40, 0);
     }
