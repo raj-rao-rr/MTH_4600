@@ -9,9 +9,9 @@
 
 double MWCUniform (unsigned int);
 unsigned int Temper (unsigned int);
-int power(int, int);
-int test(double *);
-double Uniform(int);
+//int power(int, int);
+//int test(double *);
+//double Uniform(int);
 
 
 int power(int x, int a) {
@@ -42,28 +42,33 @@ double Uniform(int w) {
 int test(double *U) {
     // split the unit interval into 40 disjoint subintervals of equal length 
     double lower, upper, delta = 0.025;
-    int pw = 3, c = 0, M = 0;
+    int pw = 3, c = 0, M1, M2, M3, M = 0;
 
-    /*for (int i = 0; i < 3; ++i) {
+    M1 = int(MWCUniform(0) / 0.025) * 40 * 40;
+    M2 = int(MWCUniform(0) / 0.025) * 40;
+    M3 = int(MWCUniform(0) / 0.025);
+    M = M1 + M2 + M3;
+
+   /* for (int i = 0; i < 3; ++i) {
         M += int(U[c] / delta) * power(40, pw - 1);
         --pw;
         ++c;
     }*/
 
-    // k iterates from 0 < k < 40 for each disjoint interval
-    for (double k = 0; k < 40; ++k) {
-        // creating the bounds for the restricted interval I, (k*delta, (k+1)*delta]
-        lower = k * delta;
-        upper = (k + 1.0) * delta;
+    //// k iterates from 0 < k < 40 for each disjoint interval
+    //for (double k = 0; k < 40; ++k) {
+    //    // creating the bounds for the restricted interval I, (k*delta, (k+1)*delta]
+    //    lower = k * delta;
+    //    upper = (k + 1.0) * delta;
 
-        // if we have that our uniform random variable U[c] at index (c) is in the restricted interval I denoted by the lower/upper levels we consider M_1, M_2, M_3  
-        if ((U[c] > lower) && (U[c] <= upper) && (pw > 0)) {
-            // if the condition is met we form our M through the sumproduct of k's and 40 raised to the powers [2,1,0] in that order
-            M += (k * power(40, pw - 1));
-            --pw;
-            ++c;
-        }
-    }
+    //    // if we have that our uniform random variable U[c] at index (c) is in the restricted interval I denoted by the lower/upper levels we consider M_1, M_2, M_3  
+    //    if ((U[c] > lower) && (U[c] <= upper) && (pw > 0)) {
+    //        // if the condition is met we form our M through the sumproduct of k's and 40 raised to the powers [2,1,0] in that order
+    //        M += (k * power(40, pw - 1));
+    //        --pw;
+    //        ++c;
+    //    }
+    //}
     return M;
 }
 
