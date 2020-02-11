@@ -1,5 +1,7 @@
 #include <iostream>
 #include <algorithm> 
+#include <fstream>
+#include <list>
 #include "Functions.h"
 
 // MTUniform is the Mersenne twister, MWCUniform is the multiply with carry
@@ -61,10 +63,10 @@ int test(double *U) {
 int main() {
     double Z, p, q, mu, sigma, U[3];
     int w, n, m;
-    int* X;
-
+    std::list<double> listOfFloats;
+    
     // Allocate space for X[1],... X[64000] and initialize each to 0.
-    X = (int *) calloc (64000, sizeof (int));
+    int X[64000] = { };
 
     // allow the user to select their specific number generator 
     printf("Which random number generator would you like to implement \n");
@@ -88,10 +90,11 @@ int main() {
         
         // Increment the appropriate X by 1.
         ++ X[m];
+            listOfFloats.push_back(m);
     }
 
     // Below code adopted from C. Douglas Howard // 
-    std::cout << X << "\n";
+
     // Now each X[m] should be Binomial (n, p), where p = 1/40320.
     p = 1.0 / 64000.0;
     q = 1.0 - p;
@@ -108,7 +111,7 @@ int main() {
     // Create the TeX files for viewing.
     NormalHistogram(0, 40, 1);
     
-    printf("The simulation is complete...");
+    printf("The simulation is complete...\n");
     
     Exit ();
 }
