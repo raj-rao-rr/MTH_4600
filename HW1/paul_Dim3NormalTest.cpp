@@ -1,5 +1,5 @@
 #include <iostream>
-#include <list>
+#include <fstream>
 #include "Functions.h"
 
 // MTUniform is the Mersenne twister, MWCUniform is the multiply with carry
@@ -15,10 +15,12 @@ int main() {
    // Insert your code between here...
    int M1, M2, M3, Triplet, Trials;
    double p, q, mu, sigma, Z;
-   std::list<double> listOfFloats;
    int X[64000]= { };
 
    Trials = 100000000;
+
+   std::ofstream myfile;
+   myfile.open("C:/Users/mahar/OneDrive/Documents/GitHub/MTH_4600/HW1/paul_m_values.txt");
 
 	// Create Triplets with the bin that they're in, then update the counter
 	for (int i = 0; i < Trials; i++){
@@ -27,22 +29,25 @@ int main() {
       M3 = int(MWCUniform(0) / 0.025);
       Triplet = M1 + M2 + M3;
       ++X[Triplet];
-		listOfFloats.push_back(Triplet);
+      
+      myfile << m << "\n";
    }
 
-   // Compute the mean and standard deviation of the X[]'s.
-   p = 1.0/64000.0;
-   q = 1.0 - p;
-   mu = Trials * p;
-   sigma = sqrt(Trials * p * q);
+    myfile.close();
 
-   for (int i = 0; i < 64000; i++) {
-      Z = (X[i] - mu) / sigma;
-      NormalHistogram (Z, 40, 0);
-   }
+   //// Compute the mean and standard deviation of the X[]'s.
+   //p = 1.0/64000.0;
+   //q = 1.0 - p;
+   //mu = Trials * p;
+   //sigma = sqrt(Trials * p * q);
 
-   // Create output files.
-   NormalHistogram (0, 40, 1);
+   //for (int i = 0; i < 64000; i++) {
+   //   Z = (X[i] - mu) / sigma;
+   //   NormalHistogram (Z, 40, 0);
+   //}
+
+   //// Create output files.
+   //NormalHistogram (0, 40, 1);
 
 
    // ... and here.

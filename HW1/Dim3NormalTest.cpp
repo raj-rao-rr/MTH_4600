@@ -1,5 +1,6 @@
 #include <iostream>
-#include <algorithm> 
+#include <algorithm>
+#include <fstream>
 #include "Functions.h"
 
 // MTUniform is the Mersenne twister, MWCUniform is the multiply with carry
@@ -74,6 +75,9 @@ int main() {
     // select the number of simulations you would like to run
     n = GetInteger("How many simulations would you like to run (suggested 10 million): ");
 
+    std::ofstream myfile;
+    myfile.open("C:/Users/mahar/OneDrive/Documents/GitHub/MTH_4600/HW1/rajesh_m_values.txt");
+
     // running n simulations (suggested 10, 50, 100 million) to test normalacy
     for (int i = 0; i < n; ++i) {
 
@@ -83,29 +87,33 @@ int main() {
 
         // Compute the value of M provided the testing instructions
         std::sort(U, U + 3);
-        m = test(U);
+        m = test(U);       
         
+        myfile << m << "\n";
+
         // Increment the appropriate X by 1.
         ++ X[m];
     }
 
+    myfile.close();
+
     // Below code adopted from C. Douglas Howard // 
 
-    // Now each X[m] should be Binomial (n, p), where p = 1/40320.
-    p = 1.0 / 64000.0;
-    q = 1.0 - p;
-    mu = n * p;
-    sigma = sqrt(n * p * q);
+    //// Now each X[m] should be Binomial (n, p), where p = 1/40320.
+    //p = 1.0 / 64000.0;
+    //q = 1.0 - p;
+    //mu = n * p;
+    //sigma = sqrt(n * p * q);
 
-    // If n is large, (X[m] - mu)/sigma should be approximately Normal(0,1).
-    // Normalize and add to a normal histogram.
-    for (int i = 0; i <= 64000; ++i) {
-        Z = (X[i] - mu) / sigma;
-        NormalHistogram(Z, 40, 0);
-    }
+    //// If n is large, (X[m] - mu)/sigma should be approximately Normal(0,1).
+    //// Normalize and add to a normal histogram.
+    //for (int i = 0; i <= 64000; ++i) {
+    //    Z = (X[i] - mu) / sigma;
+    //    NormalHistogram(Z, 40, 0);
+    //}
 
-    // Create the TeX files for viewing.
-    NormalHistogram(0, 40, 1);
+    //// Create the TeX files for viewing.
+    //NormalHistogram(0, 40, 1);
     
     printf("The simulation is complete...\n");
     
