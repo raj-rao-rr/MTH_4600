@@ -64,7 +64,7 @@ int main() {
     int* X;
 
     // Allocate space for X[1],... X[64000] and initialize each to 0.
-    X = (int*)calloc(64000, sizeof(int));
+    X = (int *) calloc (64000, sizeof (int));
 
     // allow the user to select their specific number generator 
     printf("Which random number generator would you like to implement \n");
@@ -88,7 +88,6 @@ int main() {
         
         // Increment the appropriate X by 1.
         ++ X[m];
-
     }
 
     // Below code adopted from C. Douglas Howard // 
@@ -175,7 +174,7 @@ double MWCUniform (unsigned int seed) {
    // Re-assemble n1 and n0.
    N = (n1 << 16) + n0;
 
-   return ((N + 0.5) / 4294967296.0);
+   return ((Temper(N) + 0.5) / 4294967296.0);
 
 }
 
