@@ -174,7 +174,7 @@ double MWCUniform (unsigned int seed) {
    // Re-assemble n1 and n0.
    N = (n1 << 16) + n0;
 
-   return ((Temper(N) + 0.5) / 4294967296.0);
+   return (N + 0.5) / 4294967296.0);
 
 }
 
