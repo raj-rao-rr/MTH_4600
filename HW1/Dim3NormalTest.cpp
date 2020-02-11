@@ -1,7 +1,5 @@
 #include <iostream>
 #include <algorithm> 
-#include <fstream>
-#include <list>
 #include "Functions.h"
 
 // MTUniform is the Mersenne twister, MWCUniform is the multiply with carry
@@ -63,7 +61,6 @@ int test(double *U) {
 int main() {
     double Z, p, q, mu, sigma, U[3];
     int w, n, m;
-    std::list<double> listOfFloats;
     
     // Allocate space for X[1],... X[64000] and initialize each to 0.
     int X[64000] = { };
@@ -90,7 +87,6 @@ int main() {
         
         // Increment the appropriate X by 1.
         ++ X[m];
-            listOfFloats.push_back(m);
     }
 
     // Below code adopted from C. Douglas Howard // 
