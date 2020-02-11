@@ -42,21 +42,22 @@ double Uniform(int w) {
 int test(double *U) {
     // split the unit interval into 40 disjoint subintervals of equal length 
     double lower, upper, delta = 0.025;
-    int pw = 3, c = 0, M1, M2, M3, M = 0;
+    int pw = 3, c = 0, M = 0;
 
-    M1 = int(MWCUniform(0) / 0.025) * 40 * 40;
+    /*M1 = int(MWCUniform(0) / 0.025) * 40 * 40;
     M2 = int(MWCUniform(0) / 0.025) * 40;
     M3 = int(MWCUniform(0) / 0.025);
-    M = M1 + M2 + M3;
+    M = M1 + M2 + M3;*/
 
-   /* for (int i = 0; i < 3; ++i) {
-        M += int(U[c] / delta) * power(40, pw - 1);
+    for (int i = 0; i < 3; i++) {
+        std::cout << "Vector " << U[i] << "\n";
+        std::cout << "Sample " << MWCUniform(0) << "\n";
+        M += int(MWCUniform(0) / delta) * power(40, pw - 1);
         --pw;
-        ++c;
-    }*/
+    }
 
     //// k iterates from 0 < k < 40 for each disjoint interval
-    //for (double k = 0; k < 40; ++k) {
+    //for (double k = 0; k < 40; k++) {
     //    // creating the bounds for the restricted interval I, (k*delta, (k+1)*delta]
     //    lower = k * delta;
     //    upper = (k + 1.0) * delta;
@@ -90,9 +91,9 @@ int main() {
     n = GetInteger("How many simulations would you like to run (suggested 10 million): ");
 
     // running n simulations (suggested 10, 50, 100 million) to test normalacy
-    for (int i = 0; i < n; ++i) {
+    for (int i = 0; i < n; i++) {
 
-        for (int j = 0; j < 3; ++j) {
+        for (int j = 0; j < 3; j++) {
             U[j] = Uniform(w);
         }
 
@@ -102,6 +103,7 @@ int main() {
 
         // Increment the appropriate X by 1.
         ++ X[m];
+        break;
     }
 
     // Now each X[m] should be Binomial (n, p), where p = 1/40320.
@@ -112,7 +114,7 @@ int main() {
 
     // If n is large, (X[m] - mu)/sigma should be approximately Normal(0,1).
     // Normalize and add to a normal histogram.
-    for (int i = 0; i < 64000; ++i) {
+    for (int i = 0; i < 64000; i++) {
         Z = (X[i] - mu) / sigma;
         NormalHistogram(Z, 40, 0);
     }
