@@ -49,7 +49,7 @@ int test(double *U) {
         // if we have that our uniform random variable U[c] at index (c) is in the restricted interval I denoted by the lower/upper levels  
         if ((U[c] > lower) && (U[c] <= upper) && (pw > 0)) {
             // if the condition is met we form our M through the sumproduct of k's and 40 raised to the powers [2,1,0] in that order
-            M += k * power(40, pw - 1);
+            M += (k * power(40, pw - 1));
             --pw;
             ++c;
         }
@@ -91,7 +91,7 @@ int main() {
     }
 
     // Below code adopted from C. Douglas Howard // 
-
+    std::cout << X << "\n";
     // Now each X[m] should be Binomial (n, p), where p = 1/40320.
     p = 1.0 / 64000.0;
     q = 1.0 - p;
@@ -174,7 +174,7 @@ double MWCUniform (unsigned int seed) {
    // Re-assemble n1 and n0.
    N = (n1 << 16) + n0;
 
-   return (N + 0.5) / 4294967296.0);
+   return ((N + 0.5) / 4294967296.0);
 
 }
 
