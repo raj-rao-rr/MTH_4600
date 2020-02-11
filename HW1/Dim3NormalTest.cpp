@@ -6,7 +6,8 @@
 
 // This function is found below.
 int power(int, int);
-int test(double arr[]);
+int test(double *);
+
 
 // MTUniform is the Mersenne twister, MWCUniform is the multiply with carry
 //    generator that we discussed in class.
@@ -36,7 +37,7 @@ double Uniform(int w) {
 }
 
 
-int test(double U[3]) {
+int test(double *x) {
     // split the unit interval into 40 disjoint subintervals of equal length 
     double lower, upper, delta = 0.025;
     int pw = 3, c = 0, M1, M2, M3, M;
@@ -49,7 +50,7 @@ int test(double U[3]) {
     M = 0;
 
     for (int i = 0; i < 3; i++) {
-        M += int(U[i] / delta) * power(40, pw - 1);
+        M += (int(x[i] / delta) * power(40, pw - 1));
         --pw;
     }
 
@@ -61,7 +62,7 @@ int test(double U[3]) {
     //    upper = (k + 1.0) * delta;
 
     //    // if we have that our uniform random variable U[c] at index (c) is in the restricted interval I denoted by the lower/upper levels we consider M_1, M_2, M_3  
-    //    if ((U[c] > lower) && (U[c] <= upper) && (pw > 0)) {
+    //    if ((x[c] > lower) && (x[c] <= upper) && (pw > 0)) {
     //        // if the condition is met we form our M through the sumproduct of k's and 40 raised to the powers [2,1,0] in that order
     //        M += (k * power(40, pw - 1));
     //        --pw;
