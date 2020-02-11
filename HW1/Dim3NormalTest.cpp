@@ -33,21 +33,30 @@ double Uniform(int w) {
     else if (w == 2) {
         return MWCUniform(0);
     }
+    else {
+        return 0;
+    }
 }
 
 
 int test(double *U) {
     // split the unit interval into 40 disjoint subintervals of equal length 
-    double lower, upper, delta = 0.025, M = 0;
-    int pw = 3, c = 0;
+    double lower, upper, delta = 0.025;
+    int pw = 3, c = 0, M = 0;
+
+    /*for (int i = 0; i < 3; ++i) {
+        M += int(U[c] / delta) * power(40, pw - 1);
+        --pw;
+        ++c;
+    }*/
 
     // k iterates from 0 < k < 40 for each disjoint interval
     for (double k = 0; k < 40; ++k) {
-        // creating the bounds for the restricted interval I, (k*delta, (k+1)*delta)
+        // creating the bounds for the restricted interval I, (k*delta, (k+1)*delta]
         lower = k * delta;
         upper = (k + 1.0) * delta;
 
-        // if we have that our uniform random variable U[c] at index (c) is in the restricted interval I denoted by the lower/upper levels  
+        // if we have that our uniform random variable U[c] at index (c) is in the restricted interval I denoted by the lower/upper levels we consider M_1, M_2, M_3  
         if ((U[c] > lower) && (U[c] <= upper) && (pw > 0)) {
             // if the condition is met we form our M through the sumproduct of k's and 40 raised to the powers [2,1,0] in that order
             M += (k * power(40, pw - 1));
@@ -75,9 +84,6 @@ int main() {
     // select the number of simulations you would like to run
     n = GetInteger("How many simulations would you like to run (suggested 10 million): ");
 
-   /* std::ofstream myfile;
-    myfile.open("C:/Users/mahar/OneDrive/Documents/GitHub/MTH_4600/HW1/rajesh_m_values.txt");*/
-
     // running n simulations (suggested 10, 50, 100 million) to test normalacy
     for (int i = 0; i < n; ++i) {
 
@@ -88,14 +94,10 @@ int main() {
         // Compute the value of M provided the testing instructions
         std::sort(U, U + 3);
         m = test(U);       
-        
-        //myfile << m << "\n";
 
         // Increment the appropriate X by 1.
         ++ X[m];
     }
-
-    //myfile.close();
 
     // Now each X[m] should be Binomial (n, p), where p = 1/40320.
     p = 1.0 / 64000.0;

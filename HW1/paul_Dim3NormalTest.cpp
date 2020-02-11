@@ -19,8 +19,6 @@ int main() {
 
    Trials = 100000000;
 
-   std::ofstream myfile;
-   myfile.open("C:/Users/mahar/OneDrive/Documents/GitHub/MTH_4600/HW1/paul_m_values.txt");
 
 	// Create Triplets with the bin that they're in, then update the counter
 	for (int i = 0; i < Trials; i++){
@@ -30,24 +28,22 @@ int main() {
       Triplet = M1 + M2 + M3;
       ++X[Triplet];
       
-      myfile << m << "\n";
    }
 
-    myfile.close();
 
-   //// Compute the mean and standard deviation of the X[]'s.
-   //p = 1.0/64000.0;
-   //q = 1.0 - p;
-   //mu = Trials * p;
-   //sigma = sqrt(Trials * p * q);
+   // Compute the mean and standard deviation of the X[]'s.
+   p = 1.0/64000.0;
+   q = 1.0 - p;
+   mu = Trials * p;
+   sigma = sqrt(Trials * p * q);
 
-   //for (int i = 0; i < 64000; i++) {
-   //   Z = (X[i] - mu) / sigma;
-   //   NormalHistogram (Z, 40, 0);
-   //}
+   for (int i = 0; i < 64000; i++) {
+      Z = (X[i] - mu) / sigma;
+      NormalHistogram (Z, 40, 0);
+   }
 
-   //// Create output files.
-   //NormalHistogram (0, 40, 1);
+   // Create output files.
+   NormalHistogram (0, 40, 1);
 
 
    // ... and here.
