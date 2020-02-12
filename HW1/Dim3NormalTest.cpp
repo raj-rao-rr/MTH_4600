@@ -1,5 +1,4 @@
 #include <iostream>
-#include <algorithm>
 #include <fstream>
 #include "Functions.h"
 
@@ -14,6 +13,7 @@ double MWCUniform (unsigned int);
 unsigned int Temper (unsigned int);
 
 
+// Solve the expression x^a = y, where x,a are integer values 
 int power(int x, int a) {
     int val = 1;
 
@@ -25,8 +25,9 @@ int power(int x, int a) {
 }
     
 
+// determines which uniform random number generator is to be used either MTUniform (Mersenne twister) or MWCUniform (multiply with carry)
 double Uniform(int w) {
-    // determines which uniform random number generator is to be used either MTUniform (Mersenne twister) or MWCUniform (multiply with carry)
+  
     if (w == 1) {
         return MTUniform(0);
     } else {
@@ -55,6 +56,7 @@ int main() {
     // running n simulations (suggested 10, 50, 100 million) to test normalacy
     for (int i = 0; i < n; i++) {
 
+        // form the uniform vector of length 3, using the specified RNG
         for (int j = 0; j < 3; j++) {
             U[j] = Uniform(w);
         }
@@ -65,7 +67,7 @@ int main() {
 
         // Compute the value of M provided the testing instructions
         for (int i = 0; i < 3; i++) {
-            // we take the integer component of a uniform [0,1] divided into 40 subintervals and take the integer part raised to the sequential powers of 40^[2,1,0]
+            // we take the integer component of a uniform [0,1] divided into 40 subintervals raised to the sequential powers of 40^[2,1,0]
             M += (int(U[i] / delta) * power(40, pw - 1));
             --pw;
         }
@@ -74,7 +76,7 @@ int main() {
         ++ X[M];
     }
 
-    // Now each X[m] should be Binomial (n, p), where p = 1/40320.
+    // Now each X[m] should be Binomial (n, p), where p = 1/64000.
     p = 1.0 / 64000.0;
     q = 1.0 - p;
     mu = n * p;
