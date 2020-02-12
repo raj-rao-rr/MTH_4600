@@ -29,8 +29,7 @@ double Uniform(int w) {
     // determines which uniform random number generator is to be used either MTUniform (Mersenne twister) or MWCUniform (multiply with carry)
     if (w == 1) {
         return MTUniform(0);
-    }
-    else {
+    } else {
         return MWCUniform(0);
     }
 }
@@ -38,7 +37,7 @@ double Uniform(int w) {
 
 int main() {
     double Z, p, q, mu, sigma, U[3], delta = 0.025;
-    int w, n, M1, M2, M3, M, pw;
+    int w, n, M, pw;
     double Uniform(int);
     
     // Allocate space for X[1],... X[64000] and initialize each to 0.
@@ -60,15 +59,13 @@ int main() {
             U[j] = Uniform(w);
         }
 
-        /*M1 = int(MWCUniform(0) / 0.025) * 40 * 40;
-        M2 = int(MWCUniform(0) / 0.025) * 40;
-        M3 = int(MWCUniform(0) / 0.025);
-        M = M1 + M2 + M3;*/
-
+        // restart the power and definition of M per each itteration of n-simulation 
         M = 0;
         pw = 3;
+
         // Compute the value of M provided the testing instructions
         for (int i = 0; i < 3; i++) {
+            // we take the integer component of a uniform [0,1] divided into 40 subintervals and take the integer part raised to the sequential powers of 40^[2,1,0]
             M += (int(U[i] / delta) * power(40, pw - 1));
             --pw;
         }
