@@ -1,4 +1,4 @@
-////////////////////////////////////////////////////////////////////////////////
+ d////////////////////////////////////////////////////////////////////////////////
 // Paul HW2
 // 
 
@@ -11,12 +11,19 @@ int main() {
     double rho, pv0, rate, cashflow, promised_tranche_cashflow, monthtotal;
     double **V, **L, **Y, **X, **T, **P;
 
+    // itterating through each value of rho (correlation coefficient of 20 entities)
+    // higher values of rho should create riskier cashflows, as default risks become compounded
     for (rho=0.0; rho < 1.0; rho = rho + 0.1){
         
+        // Discount Rate
+        rate = 0.03;
+
+        // Thirty year maturity in months.
+        maturity = 360;
+
+        // 20 entities in the CDO pool, allocated to 5 trenches 
         names = 20;
         tranches = 5;
-
-        //printf ("I am computing the Cholesky decomposition for the matrix V\n");
 
         // Allocate array space for V and Y.
         V = Array (names,names);
@@ -25,68 +32,38 @@ int main() {
         T = Array (names,1);
         P = Array (tranches,1);
 
-        // Assign values to the V[i][j].
+        // Create the covariance matrix, allocating the index position accordingly
+        // where: rho for (i == j) and 1 for (i != j)
         for (i = 1; i <= names; i++) {
             for (j = 1; j <= names; j++) {
                 V[i][j] = (i == j ? 1.0 : rho);
             }
         }
 
-        // Assign values to the X[i][1].
+        // Populate our vector X
+        // Creates a vector of standard normals, provided the inverse CDF approximation, with a uniform r.v  parameter
         for (i = 1; i <= names; i++) {
-            X[i][1] = MTUniform(0);
+            X[i][1] = PsiInv(MTUniform(0));
         }
-            
-        // Show the matrix V.
-        //printf ("V:\n");
-        //Show (V);
-
-        // Show the matrix X.
-        //printf ("X:\n");
-        //Show (X);
-
+        
+        // Creates our matrix L, from our PD, symmetric covariance matrix 
         // Calculate the Cholesky decomposition.  The function allocates space for L.
         L = Cholesky (V);
 
-        // Show the matrix L.
-        //printf ("L:\n");
-        //Show (L);
-
-        // Show the product L times L transpose.
-        //printf ("L * (L transpose):\n");
-        //Show (Multiply (L, Transpose(L)));
-
-        // Show the product Y times L.
+        // Calculates correlated gaussian random variables, with shared covariance function 
         Y = (Multiply (L, X));
-        //printf ("L * X:\n");
-        //Show (Multiply (L, X));
-        //Show (Y);
 
-        // Assign values to the T[i][1].
+        // Assign values to our default vector T
         // Note that the correlated Normals are converted into Uniforms with the Psi function
         for (i = 1; i <= names; i++) {
             T[i][1] = -50 * log( Psi(Y[i][1]) );
         }
 
-        // Show the matrix T.
-        //printf ("T:\n");
-        //Show (T);
-
         // Convert values of T into last month before default.
+        // Taking the integer part of the default time, T*12 = m, where (int)(m) = the last month of cashflow to the CDO pool 
         for (i = 1; i <= names; i++) {
             T[i][1] = int( T[i][1] * 12 );
         }
-
-        // Show the matrix T.
-        //printf ("T:\n");
-        //Show (T);
-
-
-        // Discount Rate
-        rate = 0.03;
-
-        // Thirty year maturity in months.
-        maturity = 360;
 
         // Promised monthly cash flow is $100.
         cashflow = 100.0;
@@ -97,12 +74,10 @@ int main() {
             P[i][1] = 0.0;
         }
 
-        // Show the matrix P.
-        //printf ("P:\n");
-        //Show (P);
-
+        // define the present value to be 0.0
         pv0 = 0.0;
 
+        // discount the promised cash flows according to the rate and month itterated through 
         for (m = 1; m <= maturity; m ++) {
             pv0 += exp (-rate * m / 12.0) * promised_tranche_cashflow;
         }
@@ -112,6 +87,7 @@ int main() {
 
             monthtotal = 0.0;
 
+            // calculate the cashflows per month, through maturity
             for (name = 1; name <= 20; ++name) {
                 if (T[name][1] >= m){
                     monthtotal += cashflow;
@@ -132,12 +108,8 @@ int main() {
             }
         }
 
-        // Show the matrix P.
-        //printf ("P:\n");
-        //Show (P);
 
-
-        // Initialize the present value of each tranche to 0.
+        // Initialize the present value of each tranche to 0 and print the values per each tranche
         printf ("For Rho = %8.2f:\n",rho);
         for (i = 1; i <= tranches; i++) {
             printf ("For trache number %d, the present value of the expected cash flow is %8.2f.\n", i, P[i][1]);
