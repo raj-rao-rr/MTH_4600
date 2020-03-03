@@ -10,7 +10,7 @@ int main() {
     double rho, pv0, rate, cashflow, promised_tranche_cashflow, monthtotal;
     double **V, **L, **Y, **X, **T, **P;
 
-    // itterating through each value of rho (correlation coefficient of 20 entities)
+    // iterating through each value of rho (correlation coefficient of 20 entities)
     // higher values of rho should create riskier cashflows, as default risks become compounded
     for (rho=0.0; rho < 1.0; rho = rho + 0.1){
 
@@ -76,7 +76,7 @@ int main() {
         // define the present value to be 0.0
         pv0 = 0.0;
 
-        // discount the promised cash flows according to the rate and month itterated through 
+        // discount the promised cash flows according to the rate and month iterated through 
         for (m = 1; m <= maturity; m ++) {
             pv0 += exp (-rate * m / 12.0) * promised_tranche_cashflow;
         }
@@ -94,11 +94,11 @@ int main() {
                 }
             }
 
-            // now we itterate through the tranches and allocate according to each tranche's promised cash flow 
+            // now we iterate through the tranches and allocate according to each tranche's promised cash flow 
             for (i = 1; i <= tranches; ++i) {
                 if (monthtotal > 0) {
                     // if the monthly cashflow is greater than the promised cashflow we allocate the cashflow to the respective tranche
-                    // we then reduce the monthy cashflow by the amount paid out to the tranche 
+                    // we then reduce the monthly cashflow by the amount paid out to the tranche 
                     if (monthtotal >= promised_tranche_cashflow) {
                         P[i][1] += exp (-rate * m / 12.0) * promised_tranche_cashflow;
                         monthtotal -= promised_tranche_cashflow;
