@@ -87,19 +87,24 @@ int main() {
 
             monthtotal = 0.0;
 
-            // calculate the cashflows per month, through maturity
+            // calculate the cashflows per month, through maturity 
+            // simultaneously check for default times based on previous calculation
             for (name = 1; name <= 20; ++name) {
                 if (T[name][1] >= m){
                     monthtotal += cashflow;
                 }
             }
 
+            // now we itterate through the tranches and allocate according to each tranche's promised cash flow 
             for (i = 1; i <= tranches; ++i) {
                 if (monthtotal > 0) {
+                    // if the monthly cashflow is greater than the promised cashflow we allocate the cashflow to the respective tranche
+                    // we then reduce the monthy cashflow by the amount paid out to the tranche 
                     if (monthtotal >= promised_tranche_cashflow) {
                         P[i][1] += exp (-rate * m / 12.0) * promised_tranche_cashflow;
                         monthtotal -= promised_tranche_cashflow;
                     }
+                    // if the monthly cashflow is less than the promised cashflow, we allocate the remaining and fill the void with 0
                     else {
                         P[i][1] += exp (-rate * m / 12.0) * monthtotal;
                         monthtotal = 0;
@@ -109,7 +114,7 @@ int main() {
         }
 
 
-        // Initialize the present value of each tranche to 0 and print the values per each tranche
+        // Initialize the present value of each tranche to 0 and output the values per each tranche
         printf ("For Rho = %8.2f:\n",rho);
         for (i = 1; i <= tranches; i++) {
             printf ("For trache number %d, the present value of the expected cash flow is %8.2f.\n", i, P[i][1]);
