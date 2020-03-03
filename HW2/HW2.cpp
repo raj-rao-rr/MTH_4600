@@ -1,6 +1,5 @@
- d////////////////////////////////////////////////////////////////////////////////
-// Paul HW2
-// 
+ /////////////////////////////////////////////////////////////////////////////////
+
 
 #include "Functions.h"
 double YTM (double, double, int);
@@ -14,12 +13,6 @@ int main() {
     // itterating through each value of rho (correlation coefficient of 20 entities)
     // higher values of rho should create riskier cashflows, as default risks become compounded
     for (rho=0.0; rho < 1.0; rho = rho + 0.1){
-        
-        // Discount Rate
-        rate = 0.03;
-
-        // Thirty year maturity in months.
-        maturity = 360;
 
         // 20 entities in the CDO pool, allocated to 5 trenches 
         names = 20;
@@ -64,6 +57,12 @@ int main() {
         for (i = 1; i <= names; i++) {
             T[i][1] = int( T[i][1] * 12 );
         }
+
+        // Discount Rate
+        rate = 0.03;
+
+        // Thirty year maturity in months.
+        maturity = 360;
 
         // Promised monthly cash flow is $100.
         cashflow = 100.0;
