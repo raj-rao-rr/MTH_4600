@@ -1,6 +1,5 @@
  /////////////////////////////////////////////////////////////////////////////////
 
-
 #include "Functions.h"
 double YTM (double, double, int);
 
@@ -25,11 +24,9 @@ int main() {
         X = Array (names,1);
         T = Array (names,1);
         P = Array (tranches,1);
-
-        printf("Current Rho value is %8.2f:\n", rho);
+        
         // when Rho < 1 then we can easily perform cholesky decomposition without fault, otherwise our matrix V is not PD
-        if (rho < 1.0) {
-            
+        if (rho < 0.9) {
             // Create the covariance matrix, allocating the index position accordingly
             // where: rho for (i == j) and 1 for (i != j)
             for (i = 1; i <= names; ++i) {
@@ -65,7 +62,6 @@ int main() {
         
         }
         else {
-            printf("We are now inside the filter function \n");
             double U = MTUniform(0);
             // given that cholesky doesn't work in cases where rho = 1, since the determinant is zero we ignore the correlated normals from covariance matrix 
             T[1][1] = -50 * log(U);
@@ -133,12 +129,12 @@ int main() {
 
 
         // Initialize the present value of each tranche to 0 and output the values per each tranche
-       /* printf ("For Rho = %8.2f:\n",rho);
+        printf ("For Rho = %8.2f:\n",rho);
         for (i = 1; i <= tranches; i++) {
             printf ("For trache number %d, the present value of the expected cash flow is %8.2f.\n", i, P[i][1]);
             printf ("As a percent of the riskless PV, this is %8.2f.\n", 100.0 * P[i][1]/pv0);
             printf ("The yield-to-maturity is %8.2f percent.\n\n\n", YTM(P[i][1], promised_tranche_cashflow, maturity));
-        }*/
+        }
     }
 }
 
