@@ -1,5 +1,6 @@
  /////////////////////////////////////////////////////////////////////////////////
 
+#include <iostream>
 #include "Functions.h"
 double YTM (double, double, int);
 
@@ -7,7 +8,7 @@ double YTM (double, double, int);
 int main() {
 
     int i, j, tranches, names, name, m, maturity;
-    double rho, pv0, rate, cashflow, promised_tranche_cashflow, monthtotal;
+    double rho, pv0, rate, cashflow, promised_tranche_cashflow, monthtotal, temp, epsilon = 0.001;
     double **V, **L, **Y, **X, **T, **P;
 
     // iterating through each value of rho (correlation coefficient of 20 entities)
@@ -18,15 +19,26 @@ int main() {
         names = 20;
         tranches = 5;
 
-        // Allocate array space for V and Y.
-        V = Array (names,names);
-        Y = Array (names,1);
-        X = Array (names,1);
+        // allocating space for matrix
         T = Array (names,1);
         P = Array (tranches,1);
         
         // when Rho < 1 then we can easily perform cholesky decomposition without fault, otherwise our matrix V is not PD
-        if (rho < 0.9) {
+        if (rho < 1.0) {
+            // given that cholesky doesn't work in cases where rho = 1, since the determinant is zero we ignore the correlated normals from covariance matrix 
+            temp = -50 * log(MTUniform(0));
+
+            // since all the entities are correlated with coefficient 1, they all default at the same time  
+            for (i = 1; i <= names; ++i) {
+                T[i][1] = temp;
+            }
+        }
+        else {
+            // Allocate array space for V and Y.
+            V = Array(names, names);
+            Y = Array(names, 1);
+            X = Array(names, 1);
+
             // Create the covariance matrix, allocating the index position accordingly
             // where: rho for (i == j) and 1 for (i != j)
             for (i = 1; i <= names; ++i) {
@@ -59,20 +71,8 @@ int main() {
             for (i = 1; i <= names; ++i) {
                 T[i][1] = int(T[i][1] * 12);
             }
-        
-        }
-        else {
-            double U = MTUniform(0);
-            // given that cholesky doesn't work in cases where rho = 1, since the determinant is zero we ignore the correlated normals from covariance matrix 
-            T[1][1] = -50 * log(U);
-
-            // since all the entities are correlated with coefficient 1, they all default at the same time  
-            for (i = 2; i <= names; ++i) {
-                T[i][1] = T[1][1];
-            }    
         }
         
-
         // Discount Rate
         rate = 0.03;
 
@@ -129,7 +129,6 @@ int main() {
 
 
         // Initialize the present value of each tranche to 0 and output the values per each tranche
-        printf ("For Rho = %8.2f:\n",rho);
         for (i = 1; i <= tranches; i++) {
             printf ("For trache number %d, the present value of the expected cash flow is %8.2f.\n", i, P[i][1]);
             printf ("As a percent of the riskless PV, this is %8.2f.\n", 100.0 * P[i][1]/pv0);
