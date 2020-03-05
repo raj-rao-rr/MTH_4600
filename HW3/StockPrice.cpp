@@ -1,11 +1,11 @@
-
+#include <iostream>
 #include "Functions.h"
 
 main() {
 
-   double r, t, T, mu, sigma, dt, sqrtdt, S, S0, V, Vbar, V2bar,
+   double r, t, T, mu, sigma, dt, sqrtdt, S, Stilde, S0, V, Vbar, V2bar,
           elapsed_time, t_star, stdhatV, error, epsilon, n, Discount_factor,
-          U, Z, B;
+          U, Z, B, Btilde;
    int i, N, done, test;
 
    // Time to expiration.
@@ -69,19 +69,22 @@ main() {
          // Advance the path.
          U = MTUniform (0);
          Z = PsiInv (U); // Standard normal via inverst transform.
-         B += sqrtdt * Z;
+         B += sqrtdt * Z; // standard brownian path 
+         Btilde = -B; // symmetric distribution
 
          // Advance time by one period.
          t += dt;
 
          // Compute the next stock price.
-         S = S0 * exp (mu*t + sigma*B);
+         S = S0 * exp (mu*t + sigma*B);  // standard stock motion
+         Stilde = S0 * exp(mu * t + sigma * Btilde); // antithetic stock process
+
 
       }
       // S now is the value of the stock at time T for the simulated price path.
 
       // Discount back to time 0.
-      V = Discount_factor * S;
+      V = Discount_factor * (S + Stilde)/2;
 
       // Update the simulation counter and the sample moments of V at time T.
       n ++;
