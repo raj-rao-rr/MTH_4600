@@ -129,10 +129,8 @@ int main() {
          }
 
       }
-      printf("The exact value of the option contract is %8.4f\n", BSprice);
-
    }
-
+   printf("The exact value of the option contract is %8.4f\n", BSprice);
    Exit ();
 
 }
