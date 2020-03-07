@@ -1,18 +1,25 @@
 #include <iostream>
 #include "Functions.h"
 
+double max(double val) {
+    if (val > 0.0) {
+        return val;
+    }
+    return 0.0;
+}
+
 int main() {
 
    double r, t, T, mu, sigma, dt, sqrtdt, S, Stilde, S0, V, Vbar, V2bar,
           elapsed_time, t_star, stdhatV, error, epsilon, n, Discount_factor,
-          U, Z, B, Btilde;
+          U, Z, B, Btilde, C, Ctilde, BSprice, K=110.0;
    int i, N, done, test;
 
    // Time to expiration.
    T = 0.5;
 
    // Number of stock price periods.
-   N = 50;
+   N = 1;
 
    // Time increment per period.
    dt = T / N;
@@ -83,8 +90,13 @@ int main() {
       }
       // S now is the value of the stock at time T for the simulated price path.
 
+      // Actual Price of the Option (problem 5)
+      BSprice = BlackScholes(T, S, K, sigma, r);
+
       // Discount back to time 0.
-      V = Discount_factor * (S + Stilde)/2;
+      C = max(S-K);
+      Ctilde = max(Stilde - K);
+      V = Discount_factor * (C + Ctilde)/2;
 
       // Update the simulation counter and the sample moments of V at time T.
       n ++;
@@ -117,6 +129,7 @@ int main() {
          }
 
       }
+      printf("The exact value of the option contract is %8.4f\n", BSprice);
 
    }
 
