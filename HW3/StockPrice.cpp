@@ -91,7 +91,7 @@ int main() {
       // S now is the value of the stock at time T for the simulated price path.
 
       // Actual Price of the Option (problem 5)
-      BSprice = BlackScholes(T, S, K, sigma, r);
+      BSprice = BlackScholes(T, S0, K, sigma, r);
 
       // Discount back to time 0.
       C = max(S-K);
@@ -121,7 +121,7 @@ int main() {
 
          // Report.
          printf ("%10.0f   %8.4f   %8.6f %8.3f %8.3f\n", n, Vbar, error, elapsed_time, t_star);
-
+        
          // Reset the "test" counter and see if error tolerance is met.
          test = 0;
          if (error < epsilon) {
