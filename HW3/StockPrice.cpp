@@ -1,7 +1,7 @@
 #include <iostream>
 #include "Functions.h"
 
-main() {
+int main() {
 
    double r, t, T, mu, sigma, dt, sqrtdt, S, Stilde, S0, V, Vbar, V2bar,
           elapsed_time, t_star, stdhatV, error, epsilon, n, Discount_factor,
@@ -77,7 +77,7 @@ main() {
 
          // Compute the next stock price.
          S = S0 * exp (mu*t + sigma*B);  // standard stock motion
-         Stilde = S0 * exp(mu * t + sigma * Btilde); // antithetic stock process
+         Stilde = S0 * exp(mu * t + sigma*Btilde); // antithetic stock process
 
 
       }
