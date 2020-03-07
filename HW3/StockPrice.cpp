@@ -16,13 +16,13 @@ int main() {
    int i, N, done, test;
 
    // appropriate value for alpha 
-   alpha = 0.01;
+   alpha = 0.1;
 
    // Time to expiration.
    T = 0.5;
 
    // Number of stock price periods.
-   N = 1;
+   N = 50;
 
    // Time increment per period.
    dt = T / N;
@@ -99,7 +99,7 @@ int main() {
       // Discount back to time 0.
       C = max(S-K);
       Ctilde = max(Stilde - K);
-      A = 1;
+      A = B*B - T;
       V = (Discount_factor * (C + Ctilde)/2) + (alpha * A);
 
       // Update the simulation counter and the sample moments of V at time T.
@@ -135,6 +135,7 @@ int main() {
       }
    }
    printf("The exact value of the option contract is %8.4f\n", BSprice);
+   // printf("Correlation between C* and A is %8.4f\n", Correlation());
    Exit ();
 
 }
