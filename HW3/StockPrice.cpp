@@ -10,10 +10,13 @@ double max(double val) {
 
 int main() {
 
-   double r, t, T, mu, sigma, dt, sqrtdt, S, Stilde, S0, V, Vbar, V2bar,
+   double r, t, T, mu, sigma, alpha, dt, sqrtdt, S, Stilde, S0, V, Vbar, V2bar,
           elapsed_time, t_star, stdhatV, error, epsilon, n, Discount_factor,
-          U, Z, B, Btilde, C, Ctilde, BSprice, K=110.0;
+          U, Z, A, B, Btilde, C, Ctilde, BSprice, K=110.0;
    int i, N, done, test;
+
+   // appropriate value for alpha 
+   alpha = 0.01;
 
    // Time to expiration.
    T = 0.5;
@@ -96,7 +99,8 @@ int main() {
       // Discount back to time 0.
       C = max(S-K);
       Ctilde = max(Stilde - K);
-      V = Discount_factor * (C + Ctilde)/2;
+      A = 1;
+      V = (Discount_factor * (C + Ctilde)/2) + (alpha * A);
 
       // Update the simulation counter and the sample moments of V at time T.
       n ++;
