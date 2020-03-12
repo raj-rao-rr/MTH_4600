@@ -12,11 +12,9 @@ int main() {
 
    double r, t, T, mu, sigma, alpha, dt, sqrtdt, S, Stilde, S0, V, Vbar, V2bar,
           elapsed_time, t_star, stdhatV, error, epsilon, n, Discount_factor,
-          U, Z, A, B, Btilde, C, Ctilde, BSprice, K=110.0;
+          U, Z, A, B, Btilde, C, Ctilde, BSprice, A2bar, XAbar, K=110.0;
    int i, N, done, test;
 
-   // appropriate value for alpha 
-   alpha = 0.1;
 
    // Time to expiration.
    T = 0.5;
@@ -72,6 +70,9 @@ int main() {
       // Initialize time.
       t = 0;
 
+      // A: Initial phase: estimate Var A, Cov (X,A).
+      A2bar = XAbar = 0;
+
       // Simulate a stock price path.  Go forward period-by-period computing
       //   the next stock price.
       for (i = 1; i <= N; i++) {
@@ -86,9 +87,8 @@ int main() {
          t += dt;
 
          // Compute the next stock price.
-         S = S0 * exp (mu*t + sigma*B);  // standard stock motion
+         S = S0 * exp (mu*t + sigma*B);            // standard stock motion
          Stilde = S0 * exp(mu * t + sigma*Btilde); // antithetic stock process
-
 
       }
       // S now is the value of the stock at time T for the simulated price path.
@@ -96,10 +96,21 @@ int main() {
       // Actual Price of the Option (problem 5)
       BSprice = BlackScholes(T, S0, K, sigma, r);
 
-      // Discount back to time 0.
+      // Determine call payoff
       C = max(S-K);
       Ctilde = max(Stilde - K);
-      A = B*B - T;
+
+      // compute the value of A
+      A = B * B - T;
+
+      // Update the required sample moments.
+      A2bar = ((N - 1) * A2bar + A * A) / N;
+      XAbar = ((N - 1) * XAbar + S * A) / N;
+
+      // appropriate value for alpha 
+      alpha = -XAbar / A2bar;
+
+      // sample mean statistics being averaged
       V = (Discount_factor * (C + Ctilde)/2) + (alpha * A);
 
       // Update the simulation counter and the sample moments of V at time T.
