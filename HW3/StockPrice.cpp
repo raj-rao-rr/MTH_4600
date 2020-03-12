@@ -12,9 +12,14 @@ int main() {
 
    double r, t, T, mu, sigma, alpha, dt, sqrtdt, S, Stilde, S0, V, Vbar, V2bar,
           elapsed_time, t_star, stdhatV, error, epsilon, n, Discount_factor,
-          U, Z, A, B, Btilde, C, Ctilde, BSprice, A2bar, XAbar, K=110.0;
+          U, Z, A, B, Btilde, C, Ctilde, BSprice, A2bar, XAbar, K, Smax, SmaxT;
    int i, N, done, test;
 
+   // Strike Price
+   K = 110.0;
+   
+   // Maximum stock price 
+   Smax = SmaxT = 0;
 
    // Time to expiration.
    T = 0.5;
@@ -90,6 +95,20 @@ int main() {
          S = S0 * exp (mu*t + sigma*B);            // standard stock motion
          Stilde = S0 * exp(mu * t + sigma*Btilde); // antithetic stock process
 
+         // Compute the value of A
+         A = B * B - T;
+
+         // Update the required sample moments.
+         A2bar = ((i - 1) * A2bar + A * A) / i;
+         XAbar = ((i - 1) * XAbar + B * A) / i;
+
+         // Keep track of the maximum stock price 
+         if (S > Smax) {
+             Smax = S;
+         }
+         if (Stilde > SmaxT) {
+             SmaxT = Stilde;
+         }
       }
       // S now is the value of the stock at time T for the simulated price path.
 
@@ -97,21 +116,14 @@ int main() {
       BSprice = BlackScholes(T, S0, K, sigma, r);
 
       // Determine call payoff
-      C = max(S-K);
-      Ctilde = max(Stilde - K);
+      C = max(Smax-K);
+      Ctilde = max(SmaxT - K);
 
-      // compute the value of A
-      A = B * B - T;
-
-      // Update the required sample moments.
-      A2bar = ((N - 1) * A2bar + A * A) / N;
-      XAbar = ((N - 1) * XAbar + S * A) / N;
-
-      // appropriate value for alpha 
+      // Appropriate value for alpha 
       alpha = -XAbar / A2bar;
 
-      // sample mean statistics being averaged
-      V = (Discount_factor * (C + Ctilde)/2) + (alpha * A);
+      // Sample mean statistics being averaged
+      V = Discount_factor * ((C + Ctilde)/2) + (alpha * A);
 
       // Update the simulation counter and the sample moments of V at time T.
       n ++;
