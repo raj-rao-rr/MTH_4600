@@ -1,11 +1,17 @@
 #include <iostream>
 #include "Functions.h"
 
+// Used for calculating the max payoff of a simple vanilla call
 double max(double val) {
-    if (val > 0.0) {
-        return val;
-    }
+    if (val > 0.0) {return val;}
     return 0.0;
+}
+
+// Used for calculating the max payoff of "shout" option
+double ShoutMax(double val1, double val2) {
+    if (val1 > val2) { return val1; }
+    else if (val2 > val1) { return val2; }
+    else { return 0.0; }
 }
 
 int main() {
@@ -80,7 +86,7 @@ int main() {
 
       // Simulate a stock price path.  Go forward period-by-period computing
       //   the next stock price.
-      for (i = 1; i <= N; i++) {
+      for (i = 1; i <= N; ++i) {
 
          // Advance the path.
          U = MTUniform (0);
@@ -103,12 +109,10 @@ int main() {
          XAbar = ((i - 1) * XAbar + B * A) / i;
 
          // Keep track of the maximum stock price 
-         if (S > Smax) {
+         if ((S > Smax)) {
              Smax = S;
          }
-         if (Stilde > SmaxT) {
-             SmaxT = Stilde;
-         }
+
       }
       // S now is the value of the stock at time T for the simulated price path.
 
@@ -116,8 +120,8 @@ int main() {
       BSprice = BlackScholes(T, S0, K, sigma, r);
 
       // Determine call payoff
-      C = max(Smax-K);
-      Ctilde = max(SmaxT - K);
+      C = max(Smax - K);
+      Ctilde = max(Smax - K);
 
       // Appropriate value for alpha 
       alpha = -XAbar / A2bar;
@@ -126,12 +130,12 @@ int main() {
       V = Discount_factor * ((C + Ctilde)/2) + (alpha * A);
 
       // Update the simulation counter and the sample moments of V at time T.
-      n ++;
+      ++ n;
       Vbar  = ((n-1)*Vbar + V) / n;
       V2bar = ((n-1)*V2bar + V*V) / n;
 
       // Update the error condition test counter.
-      test ++;
+      ++ test;
 
       // Test the error condition periodically.
       if (test == 100000) {
