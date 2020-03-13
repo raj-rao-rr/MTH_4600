@@ -109,8 +109,12 @@ int main() {
          XAbar = ((i - 1) * XAbar + B * A) / i;
 
          // Keep track of the maximum stock price 
-         if ((S > Smax)) {
+         if (S > Smax) {
              Smax = S;
+         }
+
+         if (Stilde > Smax) {
+             SmaxT = Stilde;
          }
 
       }
@@ -121,7 +125,7 @@ int main() {
 
       // Determine call payoff
       C = max(Smax - K);
-      Ctilde = max(Smax - K);
+      Ctilde = max(SmaxT - K);
 
       // Appropriate value for alpha 
       alpha = -XAbar / A2bar;
