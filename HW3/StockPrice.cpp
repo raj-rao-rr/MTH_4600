@@ -101,20 +101,16 @@ int main() {
          S = S0 * exp (mu*t + sigma*B);            // standard stock motion
          Stilde = S0 * exp(mu * t + sigma*Btilde); // antithetic stock process
 
-         // Compute the value of A
+         //// Compute the value of A
          A = B * B - T;
 
          // Update the required sample moments.
-         A2bar = ((i - 1) * A2bar + A * A) / i;
-         XAbar = ((i - 1) * XAbar + B * A) / i;
+         A2bar += A * A;
+         XAbar += B * A;
 
          // Keep track of the maximum stock price 
-         if (S > Smax) {
+         if ((S > Smax) || (Stilde > Smax)) {
              Smax = S;
-         }
-
-         if (Stilde > Smax) {
-             SmaxT = Stilde;
          }
 
       }
@@ -125,12 +121,12 @@ int main() {
 
       // Determine call payoff
       C = max(Smax - K);
-      Ctilde = max(SmaxT - K);
+      Ctilde = max(Smax - K);
 
       // Appropriate value for alpha 
-      alpha = -XAbar / A2bar;
+      alpha = -XAbar/ A2bar;
 
-      // Sample mean statistics being averaged
+      // Sample mean statistics being averaged 
       V = Discount_factor * ((C + Ctilde)/2) + (alpha * A);
 
       // Update the simulation counter and the sample moments of V at time T.
@@ -156,17 +152,16 @@ int main() {
 
          // Report.
          printf ("%10.0f   %8.4f   %8.6f %8.3f %8.3f\n", n, Vbar, error, elapsed_time, t_star);
-        
          // Reset the "test" counter and see if error tolerance is met.
          test = 0;
          if (error < epsilon) {
             done = 1;
          }
-
+         
       }
    }
    printf("The exact value of the option contract is %8.4f\n", BSprice);
-   // printf("Correlation between C* and A is %8.4f\n", Correlation());
+   printf("Our alpha term is %8.4f\n", alpha);
    Exit ();
 
 }
