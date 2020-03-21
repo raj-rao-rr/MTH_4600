@@ -23,9 +23,6 @@ int main() {
 
    // Strike Price
    K = 110.0;
-   
-   // Maximum stock price 
-   Smax = SmaxT = 0;
 
    // Time to expiration.
    T = 0.5;
@@ -75,6 +72,9 @@ int main() {
       // Initialize the stock price.
       S = S0;
 
+      // Maximum stock price 
+      Smax = SmaxT = 0;
+
       // Initialize the Brownian path.
       B = 0;
 
@@ -109,8 +109,11 @@ int main() {
          XAbar += B * A;
 
          // Keep track of the maximum stock price 
-         if ((S > Smax) || (Stilde > Smax)) {
+         if (S > Smax) {
              Smax = S;
+         }
+         if (Stilde > SmaxT) {
+             SmaxT = Stilde;
          }
 
       }
@@ -121,7 +124,7 @@ int main() {
 
       // Determine call payoff
       C = max(Smax - K);
-      Ctilde = max(Smax - K);
+      Ctilde = max(SmaxT - K);
 
       // Appropriate value for alpha 
       alpha = -XAbar/ A2bar;
