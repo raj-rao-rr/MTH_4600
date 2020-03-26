@@ -10,7 +10,7 @@ double ShoutMax(double val) {
 // Used for calculating the max payoff of "shout" option
 double ShoutMax(double val1, double val2) {
     if (val1 > val2) {
-        if (val < 0) {
+        if (val1 < 0) {
             return 0;
         }
         return val1; 
@@ -27,8 +27,7 @@ int main() {
 
    double r, t, T, mu, sigma, alpha, dt, sqrtdt, S, Stilde, S0, V, Vbar, V2bar,
           elapsed_time, t_star, stdhatV, error, epsilon, n, Discount_factor,
-          U, Z, A, B, Btilde, C, Ctilde, BSprice, A2bar, XAbar, K, Smax, SmaxT, 
-          Stau, shout_avg;
+          U, Z, A, B, Btilde, C, Ctilde, BSprice, A2bar, XAbar, K, Stau, shout_avg;
    int i, N, done, test;
 
    // Average of Shout Option Pricing (varied tau's)
@@ -74,23 +73,20 @@ int main() {
    MTUniform (1);
 
    // Print column headings for output to execution window.
-   printf ("         n       Vbar        +/-        t       t*\n");
+   //printf ("         n       Vbar        +/-        t       t*\n");
 
    // Initialize certain values.
    V2bar = Vbar = done = n = test = 0;
 
    // succesively itterate for values of tau
    for (int tau = 0; tau <= N; ++tau) {
-       printf("At tau = %8.4f \n", tau);
+       printf("At tau = %8.4d \n", tau);
 
        // Begin the simulation loop.
        while (!done) {
 
            // Initialize the stock price.
            S = S0;
-
-           // Maximum stock price 
-           Smax = SmaxT = 0;
 
            // Initialize the Brownian path.
            B = 0;
@@ -136,9 +132,6 @@ int main() {
                }
            }
            // S now is the value of the stock at time T for the simulated price path.
-
-           // Actual Price of the Option (problem 5)
-           BSprice = BlackScholes(T, S0, K, sigma, r);
 
            // Determine call payoff
            C = ShoutMax(Stau - K, S - K);
@@ -189,6 +182,7 @@ int main() {
    shout_avg /= N;
    // Report.
    printf("The shout option is priced at %8.4f \n", shout_avg);
+   printf("---------------------------------------------------------------\n");
 
    Exit ();
 }
