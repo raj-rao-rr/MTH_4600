@@ -11,33 +11,20 @@ double max(double val) {
 
 // Used for calculating the max payoff of "shout" option
 double ShoutMax(double val1, double val2) {
-    if (val1 > val2) {
-        if (val1 < 0) {
-            return 0;
-        }
-        return val1;
-    }
-    else if (val2 > val1) {
-        if (val2 < 0) {
-            return 0;
-        }
-        return val2;
-    }
-    else {
-        if (val1 > 0 || val2 > 0) {
-            return val1;
-        }
-        return 0;
-    }
+    if (val1 > val2) { return val1; }
+    else if (val2 > val1) { return val2; }
+    else { return 0.0; }
 }
 
-
 int main() {
-   double r, t, T, mu, sigma, alpha, dt, sqrtdt, S, Stilde, S0, V, Vbar, V2bar, Cbar, C2bar,
+   double r, t, T, mu, sigma, alpha, alphafound, dt, sqrtdt, S, Stilde, S0, V, Vbar, V2bar, Cbar, C2bar,
           elapsed_time, timestart, t_star, stdhat, error, epsilon, n, Discount_factor,
           U, Z, A, B, Btilde, C, Ctilde, Cstar, Cstarstar,Cstarbar, Cstar2bar, Cstarstarbar, Cstarstar2bar,
-          BSprice, A2, XA, K, Smax, SmaxT,part1, part1time, part2, part2time, part3, part3time, part4, part5, part6, part6time, part7, part8;
+          BSprice, A2, XA, K, Smax, SmaxT,part1, part1time, part2, part2time, part3, part3time, part4, part5,
+          part6, part6time, part6alpha, part7, part7alpha, part8, X, A2bar, Xbar, XAbar, X2bar, CorA_Cstar;
    int i, N, done, test, part;
+
+   alphafound = 0;
 
    for(part = 1; part <= 7; ++part){
       printf("\n\nPart %d:\n", part);
@@ -56,7 +43,7 @@ int main() {
       // Number of stock price periods.
       N = 50;
       if (part == 4) {
-         N = 1; // Adjusted N for part 4 problem set 
+         N = 1; // Paul
       }
 
       // Time increment per period.
@@ -90,9 +77,6 @@ int main() {
       // Specify the 95% error tolerance.
       epsilon = 0.005;
 
-      // Start the clock to time the computations.
-      timestart = clock ();
-
       // Seed the RNG.
       MTUniform (1);
 
@@ -104,8 +88,60 @@ int main() {
          printf ("         n      C*bar        +/-        t       t*\n");
       }
       else if (part == 6 || part == 7){
+         printf("Our alpha is %8.4f\n", alpha);
          printf ("         n     C**bar        +/-        t       t*\n");
       }
+
+   while (alphafound != 1){
+      A2bar = XAbar = X2bar = 0;
+      for (int n = 1; n <= 100000; ++n) {
+         // Initialize the stock price.
+         S = S0;
+
+         // Initialize the Brownian path.
+         B = 0;
+
+         // Initialize time.
+         t = 0;
+
+         for (int i = 1; i <= N; ++i) {
+
+               // Advance the path.
+               U = MTUniform(0);
+               Z = PsiInv(U); // Standard normal via inverst transform.
+               B += sqrtdt * Z; // standard brownian path 
+               Btilde = -B; // symmetric distribution
+
+               // Advance time by one period.
+               t += dt;
+
+               // Compute the next stock price.
+               S = S0 * exp(mu * t + sigma * B);            // standard stock motion
+               Stilde = S0 * exp(mu * t + sigma * Btilde);  // antithetic stock process
+
+               //// Compute the value of A (control variable) 
+               A = B * B - t;
+
+               // Determine call payoff
+               C = max(S - K);
+               Ctilde = max(Stilde - K);
+
+               // Determine C*
+               X = exp(-r * t) * ((C + Ctilde) / 2);
+               A2bar = ((n - 1) * A2bar + A * A) / n;
+               Xbar = ((n - 1) * Xbar + X) / n;
+               X2bar = ((n - 1) * X2bar + X * X) / n;
+               XAbar = ((n - 1) * XAbar + X * A) / n;
+         }
+      }
+      alpha = -XAbar / A2bar;
+      CorA_Cstar = XAbar / ( sqrt(X2bar - Xbar*Xbar) * sqrt(A2bar) );
+
+      alphafound = 1;
+   }
+
+      // Start the clock to time the computations.
+      timestart = clock ();
 
       // Initialize certain values.
       V2bar = Vbar = A2 = XA = done = n = test = 0;
@@ -166,17 +202,6 @@ int main() {
          }
          else if (part == 6 || part == 7) {
 
-            // Compute the value of A
-            A = B * B - T;
-
-            // Update the required sample moments. There is no need to take the average by dividing by n
-            // because the calculation for alpha would cancel out that division.
-            A2 += A * A;
-            XA += B * A;
-
-            // Appropriate value for alpha 
-            alpha = -10; //- XA / A2;
-
             if (part == 6){
                // Part 6 uses the last stock price observed
                C = max(S - K);
@@ -187,6 +212,9 @@ int main() {
                C = max(Smax - K);
                Ctilde = max(SmaxT - K);
             }
+
+
+            A = B*B - T;
 
             // Sample mean statistics being averaged 
             Cstarstar = Discount_factor * ((C + Ctilde)/2) + (alpha * A);
@@ -214,20 +242,18 @@ int main() {
          if (test == 100000) {
 
             if (part == 1 || part == 2){
-            // Estimate the standard deviation of S.
-            stdhat  = sqrt (V2bar - Vbar*Vbar);
+               // Estimate the standard deviation of S.
+               stdhat  = sqrt (V2bar - Vbar*Vbar);
             }
 
             else if (part == 3 || part == 4){
-            // Estimate the standard deviation of C*.
-            stdhat  = sqrt (Cstar2bar - Cstarbar*Cstarbar);
+               // Estimate the standard deviation of C*.
+               stdhat  = sqrt (Cstar2bar - Cstarbar*Cstarbar);
             }
 
             else if (part == 6 || part == 7){
-            // Estimate the standard deviation of C**.
-            //printf ("alpha: %8.4f, XA: %8.4f, A2: %8.4f \n", alpha, XA, A2);
-            //printf ("B: %8.4f, A: %8.4f\n", B, A);
-            stdhat  = sqrt (Cstarstar2bar - Cstarstarbar*Cstarstarbar);
+               //printf("   This alpha calculated is %8.3f \n", alpha);
+               stdhat  = sqrt (Cstarstar2bar - Cstarstarbar*Cstarstarbar);
             }
 
             // Estimate the error of the Vbar estimator.
@@ -268,10 +294,12 @@ int main() {
                printf ("%10.0f   %8.4f   %8.6f %8.3f %8.3f\n", n, Cstarstarbar, error, elapsed_time, t_star);
                part6time = elapsed_time;
                part6 = Cstarstarbar;
+               part6alpha = alpha;
             }
             else if (part == 7) {
                printf ("%10.0f   %8.4f   %8.6f %8.3f %8.3f\n", n, Cstarstarbar, error, elapsed_time, t_star);
                part7 = Cstarstarbar;
+               part7alpha = alpha;
             }
          }
       }
@@ -290,10 +318,14 @@ int main() {
 
    printf("\nPart 5:\n=======\n   Using the Black-Scholes formula, the exact value of the option is %2.5f\n", part5);
 
-   printf("\nPart 6:\n=======\n   Similar to Part 1 and 2, Vbar is %3.4f and therefor also agrees with S0\n", Cstarbar);
+   printf("\nPart 6:\n=======\n   The price a call option is %3.4f \n", part6);
    printf("   This was significantly faster than Part 3, running in %8.3f seconds\n", part6time);
+   printf("   This alpha calculated is %8.3f \n", part6alpha);
+   printf("   This sample Cov(A,C*) was calculated to be %8.3f \n", XAbar);
+   printf("   This sample Cor(A,C*) was calculated to be %8.3f \n", CorA_Cstar);
 
    printf("\nPart 7:\n=======\n   The value of the look-back option is %2.5f\n", part7);
+   printf("   This alpha calculated is %8.3f \n", part7alpha);
 
 
 
