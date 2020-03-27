@@ -71,12 +71,12 @@ int main() {
       // Time increment per period.
       dt = T / N;
 
+      // Risk-free interest rate.
+      r = 0.05;
+
       // Compute these oft-used values once and for all.
       Discount_factor = exp(-r*T);
       sqrtdt = sqrt(dt);
-
-      // Risk-free interest rate.
-      r = 0.05;
 
       // Stock price volatility.
       sigma = .30;
@@ -178,7 +178,7 @@ int main() {
       timestart = clock ();
 
       // Initialize certain values.
-      V2bar = Vbar = A2 = XA = done = n = test = 0;
+      V2bar = Vbar = A2 = XA = done = n = t = test = 0;
       Cstarstar2bar = Cstarstar2bar = Cstar2bar = Cstarbar = 0; // Paul
 
       // Begin the simulation loop.
