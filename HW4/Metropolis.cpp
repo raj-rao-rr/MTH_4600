@@ -37,16 +37,17 @@ int main () {
    // Your Metropolis algorithm starts here...
 
    // problem 1. 
-   double c, e, I, actual_mv;
-   e = Array(50, 1);
+   double **I, **actual_mv, **c;
+   double** e = Array(1, 50);
 
    for (int i = 0; i < 50; ++i) {
-       e[i] = 1;
+       e[1][i] = 1;
    }
 
    I = Invert(V);
-   c = Multiply(Multiply(Transpose(e),I), e);
-   actual_mv = Multiply(ScalarMultiple(1/c, I), e);
+   c = Multiply(Multiply(e,I), Transpose(e));
+
+   actual_mv = Multiply(ScalarMultiple((1/c[1][1]), I), Transpose(e));
 
    printf("The actual minimum variance portfolio is:\n");
    Show(actual_mv);
