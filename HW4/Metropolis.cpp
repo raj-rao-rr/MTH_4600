@@ -40,17 +40,19 @@ int main () {
    double **I, **actual_mv, **c;
    double** e = Array(1, 50);
 
+   // define the e-array equal to [1, 1, ... , 1]^T
    for (int i = 0; i < 50; ++i) {
        e[1][i] = 1;
    }
 
+   // compute the inverted matrix V^{-1}
    I = Invert(V);
+
+   // compute the value of c = e^T*(V^{-1})*e
    c = Multiply(Multiply(e,I), Transpose(e));
 
+   // the actual minimum variance portfolio for the provided covariance matrix 
    actual_mv = Multiply(ScalarMultiple((1/c[1][1]), I), Transpose(e));
-
-   printf("The actual minimum variance portfolio is:\n");
-   Show(actual_mv);
 
    // problem 2.
 
