@@ -54,6 +54,9 @@ int main () {
    // the actual minimum variance portfolio for the provided covariance matrix 
    actual_mv = Multiply(ScalarMultiple((1/c[1][1]), I), Transpose(e));
 
+   // portfolio variance provided weights
+   double 
+
    // problem 2.
 
 
