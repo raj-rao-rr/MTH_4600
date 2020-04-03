@@ -54,8 +54,13 @@ int main () {
    // the actual minimum variance portfolio for the provided covariance matrix 
    actual_mv = Multiply(ScalarMultiple((1/c[1][1]), I), Transpose(e));
 
-   // portfolio variance provided weights
-   double 
+   // variance and weight array 
+   double var;
+   double** wt = Array(1, 50);
+
+   // calculate the portoflio variance 
+   var = Multiply(Multiply(wt, V), wt);
+
 
    // problem 2.
 
