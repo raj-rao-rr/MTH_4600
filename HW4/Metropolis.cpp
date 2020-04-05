@@ -13,6 +13,12 @@ double **V;
 
 #include "Functions.h"
 
+// Calculates the variance of the given portfolio, provided weights (wt) and covariance matrix (V)
+double Variance(double** &V, double** &wt) {
+    return  Multiply(Multiply(wt, V), Transpose(wt));
+}
+
+
 int main () {
 
    int i, seed;
@@ -59,7 +65,7 @@ int main () {
    double** wt = Array(1, 50);
 
    // calculate the portoflio variance 
-   var = Multiply(Multiply(wt, V), wt);
+   var = Multiply(Multiply(wt, V), Transpose(wt));
 
 
    // problem 2.
