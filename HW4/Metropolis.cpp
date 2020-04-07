@@ -65,7 +65,7 @@ int main () {
    double** wt = Array(1, 50);
 
    // calculate the portoflio variance 
-   var = Multiply(Multiply(wt, V), Transpose(wt));
+   var = Variance(V, wt);
 
 
    // problem 2.
