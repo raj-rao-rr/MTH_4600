@@ -121,32 +121,32 @@ int main () {
 
        // generate our neighbor weight vector
        EX = Copy(E0);
-       int i1 = MTUniform(seed) * 50; // index of element to reduce weight
-       int i2 = MTUniform(seed) * 50; // index of element to add weight
-       printf("i1 is %8.4d vs i2 is %8.4d\n", i1, i2);
-       // calculate the portoflio variance 
-       var1 = Multiply(Multiply(E0, V), Transpose(E0))[1][1];
+       //double i1 = MTUniform(seed) ; // index of element to reduce weight
+       //double i2 = MTUniform(seed) ; // index of element to add weight
+       printf("i1 is %8.4f vs i2 is %8.4f\n", MTUniform(seed), MTUniform(seed));
+       //// calculate the portoflio variance 
+       //var1 = Multiply(Multiply(E0, V), Transpose(E0))[1][1];
 
-       EX[1][i1] = EX[1][i1] - 0.0001;
-       EX[1][i2] = EX[1][i2] + 0.0001;
-       var2 = Multiply(Multiply(EX, V), Transpose(EX))[1][1];
+       //EX[1][i1] = EX[1][i1] - 0.0001;
+       //EX[1][i2] = EX[1][i2] + 0.0001;
+       //var2 = Multiply(Multiply(EX, V), Transpose(EX))[1][1];
 
-       printf("Var1 %8.4f vs Var2 %8.4f\n", var1, var2);
+       //printf("Var1 %8.4f vs Var2 %8.4f\n", var1, var2);
 
-       // if neighbor state is lower than prior, use the new state as our weight
-       if (var2 < var1) {
-           E0 = EX;
-       }
-       // if neighbor is larger than prior, use accept/reject scheme 
-       else {
-           U = MTUniform(seed); // generate a fresh uniform  
-           rho = exp(-(var2 - var1) / T);
+       //// if neighbor state is lower than prior, use the new state as our weight
+       //if (var2 < var1) {
+       //    E0 = EX;
+       //}
+       //// if neighbor is larger than prior, use accept/reject scheme 
+       //else {
+       //    U = MTUniform(seed); // generate a fresh uniform  
+       //    rho = exp(-(var2 - var1) / T);
 
-           // if U < our rho we modify our weight to the new neighbor 
-           if (U < rho) {
-               E0 = EX;
-           }
-       }
+       //    // if U < our rho we modify our weight to the new neighbor 
+       //    if (U < rho) {
+       //        E0 = EX;
+       //    }
+       //}
 
        /*if (j % 100000 == 0) {
            printf("At sim %8.4d with variance %8.4f\n", j, var1);
