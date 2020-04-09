@@ -13,14 +13,45 @@ double **V;
 
 #include "Functions.h"
 
+// Calucates the Square of an array 
+void SquareArray(double**& arr) {
+    double row = arr[0][0], col = arr[0][1];
+    int length;
+
+    // checks to see if this is a vertical or horizontal array
+    if (row < col) {
+        length = col;
+    }
+    else {
+        length = row;
+    }
+
+    // modifies the original array in memory 
+    for (int i = 1; i <= length; ++i) {
+        if (row < col) {
+            arr[1][i] = arr[1][i] * arr[1][i];
+        }
+        else {
+            arr[i][1] = arr[i][1] * arr[i][1];
+        }
+    }
+}
+
 // Calculates the Mean Squared Error 
-double** MSE(double** &actual, double** &pred, double n) {
-    printf("the size of actual is %8.4f X %8.4f\n", actual[0][0], actual[0][1]);
-    printf("the size of pred is %8.4f X %8.4f\n", pred[0][0], pred[0][1]);
-    //double **y1 = Add(actual, ScalarMultiple(-1.0, pred));
-    //double **y2 = y1;
-    //return  ScalarMultiple(1 / n, Multiply(y2, y1));
-    return 0;
+double MSE(double** &actual, double** &pred, double n) {
+    // takes the difference between the actual and simualted weights
+    double **y1 = Add(Transpose(actual), ScalarMultiple(-1.0, pred));
+    // squares the difference before scaling down the terms
+    SquareArray(y1);
+    double **y2 = ScalarMultiple(1.0 / n, y1);
+    double sum = 0.0;
+
+    // computes the sum of reduced terms 
+    for (int i = 1; i <= n; ++i) {
+        sum += y2[1][i];
+    }
+
+    return sum;
 }
 
 
@@ -49,9 +80,9 @@ int main () {
 
    // problem 1. 
    // variable initialization 
-   double **I, **actual_mv, **c, **var1, **var2, **error;
+   double **I, **actual_mv, **EX, **c;
    double** e = Array(1, 50);
-   double rho, U, T = 0.35;
+   double rho, U, var1, var2, error, T = 0.35;
 
    // define the e-array equal to [1, 1, ... , 1]^T
    for (int i = 1; i <= 50; ++i) {
@@ -86,42 +117,51 @@ int main () {
    }
 
    // MONTE CARLO SIMULATION
+   for (int j = 1; j <= 10; ++j) {
 
-   // generate our neighbor weight vector
-   double** EX = Copy(E0);
-   int i1 = MTUniform(1) * 50; // index of element to reduce weight
-   int i2 = MTUniform(0) * 50; // index of element to add weight
+       // generate our neighbor weight vector
+       EX = Copy(E0);
+       int i1 = MTUniform(seed) * 50; // index of element to reduce weight
+       int i2 = MTUniform(seed) * 50; // index of element to add weight
+       printf("i1 is %8.4d vs i2 is %8.4d\n", i1, i2);
+       // calculate the portoflio variance 
+       var1 = Multiply(Multiply(E0, V), Transpose(E0))[1][1];
 
-   // calculate the portoflio variance 
-   var1 = Multiply(Multiply(E0, V), Transpose(E0));
+       EX[1][i1] = EX[1][i1] - 0.0001;
+       EX[1][i2] = EX[1][i2] + 0.0001;
+       var2 = Multiply(Multiply(EX, V), Transpose(EX))[1][1];
 
-   EX[1][i1] = EX[1][i1] - 0.0001;
-   EX[1][i2] = EX[1][i2] + 0.0001;
-   var2 = Multiply(Multiply(EX, V), Transpose(EX));
+       printf("Var1 %8.4f vs Var2 %8.4f\n", var1, var2);
 
-   // if neighbor state is lower than prior, use the new state as our weight
-   if (var2[1][1] < var1[1][1]) {
-       E0 = EX;
-   }
-   // if neighbor is larger than prior, use accept/reject scheme 
-   else {
-       U = MTUniform(2); // generate a fresh uniform  
-       rho = exp(-(var2 - var1) / T);
-       printf("Fresh rho is %8.4f\n", rho);
-       if (U < rho) {
+       // if neighbor state is lower than prior, use the new state as our weight
+       if (var2 < var1) {
            E0 = EX;
        }
+       // if neighbor is larger than prior, use accept/reject scheme 
+       else {
+           U = MTUniform(seed); // generate a fresh uniform  
+           rho = exp(-(var2 - var1) / T);
+
+           // if U < our rho we modify our weight to the new neighbor 
+           if (U < rho) {
+               E0 = EX;
+           }
+       }
+
+       /*if (j % 100000 == 0) {
+           printf("At sim %8.4d with variance %8.4f\n", j, var1);
+       }*/
    }
 
-   // Output the invariant distribution 
-   printf("The calculated minimum variance portoflio is\n");
-   for (int i = 1; i <= 50; ++i) {
-       printf("%8.4f\n", E0[1][i]);
-   }
-    
-   // compute the error of the projection
-   error = MSE(actual_mv, E0, 50.0);
-   // printf("Our mean squared error is % 8.4f\n", error[1][1]);
+   //// Output the invariant distribution 
+   //printf("The calculated minimum variance portoflio is\n");
+   //for (int i = 1; i <= 50; ++i) {
+   //    printf("%8.4f\n", E0[1][i]);
+   //}
+   // 
+   //// compute the error of the projection
+   //error = MSE(actual_mv, E0, 50.0);
+   //printf("Our mean squared error is % 8.4f\n", error);
 
    // problem 2.
 
