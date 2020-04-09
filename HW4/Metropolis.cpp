@@ -41,6 +41,7 @@ void SquareArray(double**& arr) {
 double MSE(double** &actual, double** &pred, double n) {
     // takes the difference between the actual and simualted weights
     double **y1 = Add(Transpose(actual), ScalarMultiple(-1.0, pred));
+
     // squares the difference before scaling down the terms
     SquareArray(y1);
     double **y2 = ScalarMultiple(1.0 / n, y1);
@@ -63,17 +64,13 @@ int main () {
    GetData ();
 
    // Show the 50 tickers.
-   for (i = 1; i <= 50; i++) {
+   for (i = 1; i <= 50; ++i) {
       printf (ticker[i]);
    }
    Pause ();
 
    // Show the covariance matrix.
    Show (V);
-
-   // Seed the RNG.
-   seed = GetInteger ("RNG Seed?... ");
-   MTUniform (seed);
 
    /////////////////////////////////////////////////////////////////////////////
    // Your Metropolis algorithm starts here...
@@ -117,51 +114,49 @@ int main () {
    }
 
    // MONTE CARLO SIMULATION
-   for (int j = 1; j <= 10; ++j) {
+   for (int j = 1; j <= 10000000; ++j) {
 
        // generate our neighbor weight vector
-       EX = Copy(E0);
-       //double i1 = MTUniform(seed) ; // index of element to reduce weight
-       //double i2 = MTUniform(seed) ; // index of element to add weight
-       printf("i1 is %8.4f vs i2 is %8.4f\n", MTUniform(seed), MTUniform(seed));
-       //// calculate the portoflio variance 
-       //var1 = Multiply(Multiply(E0, V), Transpose(E0))[1][1];
+       EX = E0;
+       int i1 = (int) (MTUniform(0) * 50); // index of element to reduce weight
+       int i2 = (int) (MTUniform(0) * 50); // index of element to add weight
+       
+       // calculate the portoflio variance 
+       var1 = Multiply(Multiply(E0, V), Transpose(E0))[1][1];
 
-       //EX[1][i1] = EX[1][i1] - 0.0001;
-       //EX[1][i2] = EX[1][i2] + 0.0001;
-       //var2 = Multiply(Multiply(EX, V), Transpose(EX))[1][1];
+       EX[1][i1] = EX[1][i1] - 0.0001;
+       EX[1][i2] = EX[1][i2] + 0.0001;
+       var2 = Multiply(Multiply(EX, V), Transpose(EX))[1][1];
 
-       //printf("Var1 %8.4f vs Var2 %8.4f\n", var1, var2);
+       // if neighbor state is lower than prior, use the new state as our weight
+       if (var2 < var1) {
+           E0 = EX;
+       }
+       // if neighbor is larger than prior, use accept/reject scheme 
+       else {
+           U = MTUniform(0); // generate a fresh uniform  
+           rho = exp(-(var2 - var1) / T);
 
-       //// if neighbor state is lower than prior, use the new state as our weight
-       //if (var2 < var1) {
-       //    E0 = EX;
-       //}
-       //// if neighbor is larger than prior, use accept/reject scheme 
-       //else {
-       //    U = MTUniform(seed); // generate a fresh uniform  
-       //    rho = exp(-(var2 - var1) / T);
+           // if U < our rho we modify our weight to the new neighbor 
+           if (U < rho) {
+               E0 = EX;
+           }
+       }
 
-       //    // if U < our rho we modify our weight to the new neighbor 
-       //    if (U < rho) {
-       //        E0 = EX;
-       //    }
-       //}
-
-       /*if (j % 100000 == 0) {
+       if (j % 100000 == 0) {
            printf("At sim %8.4d with variance %8.4f\n", j, var1);
-       }*/
+       }
    }
 
-   //// Output the invariant distribution 
-   //printf("The calculated minimum variance portoflio is\n");
-   //for (int i = 1; i <= 50; ++i) {
-   //    printf("%8.4f\n", E0[1][i]);
-   //}
-   // 
-   //// compute the error of the projection
-   //error = MSE(actual_mv, E0, 50.0);
-   //printf("Our mean squared error is % 8.4f\n", error);
+   // Output the invariant distribution 
+   printf("The calculated minimum variance portoflio is\n");
+   for (int i = 1; i <= 50; ++i) {
+       printf("%8.4f\n", E0[1][i]);
+   }
+    
+   // compute the error of the projection
+   error = MSE(actual_mv, E0, 50.0);
+   printf("Our mean squared error is % 8.4f\n", error);
 
    // problem 2.
 
@@ -206,7 +201,7 @@ void GetData () {
 
    // Read in the data.
    fp = fopen ("S&P50Covariances.txt", "r");
-   for (i = 1; i <= 50; i++) {
+   for (i = 1; i <= 50; ++i) {
 
       // Read in stock i's covariance data.
 
@@ -214,7 +209,7 @@ void GetData () {
       fgets (ticker[i], 9, fp);
 
       // The 50 covariances for stock "i".
-      for (j = 1; j <= 50; j++) {
+      for (j = 1; j <= 50; ++j) {
 
          // Read in V[i][j].
          fgets (input, 99, fp);
