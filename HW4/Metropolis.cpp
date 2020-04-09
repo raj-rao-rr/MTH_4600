@@ -66,7 +66,7 @@ int main () {
    }
 
    // variance and weight array 
-   double var;
+   double **var1, **var2;
    double** wt = Array(1, 50);
 
    // initial weight (generate random initial weight)
@@ -81,19 +81,22 @@ int main () {
    for (int i = 0; i < 50; ++i) {
        E0[1][i] = sample[i];
    }
-   
+   double** EX = Copy(E0);
+
    // generate our neighbor weight vector
    int i1 = MTUniform(1) * 50; // index of element we will reduce weight
    int i2 = MTUniform(1) * 50; // index of element we will add weight
 
-   E0[1][i1] = E0[1][i1] - 0.0001;
-   E0[1][i2] = E0[1][i2] + 0.0001;
+   EX[1][i1] = EX[1][i1] - 0.0001;
+   EX[1][i2] = EX[1][i2] + 0.0001;
    
    // calculate the portoflio variance 
-   Multiply(Multiply(E0, V), Transpose(E0));
+   var1 = Multiply(Multiply(E0, V), Transpose(E0));
+   var2 = Multiply(Multiply(EX, V), Transpose(EX));
 
    // if neighbor state is lower than prior, use initial
-
+   printf("Variance for initial state is %8.4f", var1[1][0]);
+   printf("Variance for initial state is %8.4f", var2[1][0]);
 
    // if neighbor is larger than generate 
 
