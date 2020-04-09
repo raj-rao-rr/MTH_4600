@@ -14,9 +14,9 @@ double **V;
 #include "Functions.h"
 
 // Calculates the variance of the given portfolio, provided weights (wt) and covariance matrix (V)
-double Variance(double** &V, double** &wt) {
-    return  Multiply(Multiply(wt, V), Transpose(wt));
-}
+//double* Variance(double** &V, double** &wt) {
+//    return  Multiply(Multiply(wt, V), Transpose(wt));
+//}
 
 
 int main () {
@@ -60,12 +60,44 @@ int main () {
    // the actual minimum variance portfolio for the provided covariance matrix 
    actual_mv = Multiply(ScalarMultiple((1/c[1][1]), I), Transpose(e));
 
+   printf("The actual minimum variance portoflio");
+   for (int i = 1; i < 50; ++i) {
+       printf("%8.4f\n", actual_mv[i][1]);
+   }
+
    // variance and weight array 
    double var;
    double** wt = Array(1, 50);
 
+   // initial weight (generate random initial weight)
+   double sample[50] = { 0.0386, 0.0377, 0.1453, 0.0005, 0.0203, 0.0282, 0.051, 0.2395, 0.1467, 0.1359,
+       0.0861, 0.0734, 0.1024, 0.0349, 0.0602, 0.0376, 0.0108, 0.0905, 0.0539, 0.1539,
+       0.1113, 0.0153, 0.0675, 0.0605, 0.1976, -0.0118, -0.0346, -0.0102, -0.0104, -0.0309,
+       -0.1296, -0.0767, -0.0855, -0.1212, -0.0424, -0.0000, -0.0525, -0.0048, -0.0376, -0.0083,
+       -0.0042, -0.0004, -0.0149, -0.0518, -0.0725, -0.0281, -0.1096, -0.0514, -0.004, -0.0066 };
+
+   double** E0 = Array(1, 50);
+   double sum = 0.0;
+   for (int i = 0; i < 50; ++i) {
+       sum += sample[i];
+   }
+   printf("sum is %8.4f", sum);
+   // generate the neighbor of given state
+
+   /*[0.0386  0.0377  0.1453  0.0005  0.0203  0.0282  0.051   0.2395  0.1467
+       0.1359  0.0861  0.0734  0.1024  0.0349  0.0602  0.0376  0.0108  0.0905
+       0.0539  0.1539  0.1113  0.0153  0.0675  0.0605  0.1976 - 0.0118 - 0.0346
+       - 0.0102 - 0.0104 - 0.0309 - 0.1296 - 0.0767 - 0.0855 - 0.1212 - 0.0424 - 0.
+       - 0.0525 - 0.0048 - 0.0376 - 0.0083 - 0.0042 - 0.0004 - 0.0149 - 0.0518 - 0.0725
+       - 0.0281 - 0.1096 - 0.0514 - 0.004 - 0.0066]*/
+   
    // calculate the portoflio variance 
-   var = Variance(V, wt);
+   // var = Variance(V, wt);
+
+   // if neighbor state is lower than prior, use initial
+
+
+   // if neighbor is larger than generate 
 
 
    // problem 2.
