@@ -13,10 +13,15 @@ double **V;
 
 #include "Functions.h"
 
-// Calculates the variance of the given portfolio, provided weights (wt) and covariance matrix (V)
-//double* Variance(double** &V, double** &wt) {
-//    return  Multiply(Multiply(wt, V), Transpose(wt));
-//}
+// Calculates the Mean Squared Error 
+double** MSE(double** &actual, double** &pred, double n) {
+    printf("the size of actual is %8.4f X %8.4f\n", actual[0][0], actual[0][1]);
+    printf("the size of pred is %8.4f X %8.4f\n", pred[0][0], pred[0][1]);
+    //double **y1 = Add(actual, ScalarMultiple(-1.0, pred));
+    //double **y2 = y1;
+    //return  ScalarMultiple(1 / n, Multiply(y2, y1));
+    return 0;
+}
 
 
 int main () {
@@ -43,11 +48,13 @@ int main () {
    // Your Metropolis algorithm starts here...
 
    // problem 1. 
-   double **I, **actual_mv, **c;
+   // variable initialization 
+   double **I, **actual_mv, **c, **var1, **var2, **error;
    double** e = Array(1, 50);
+   double rho, U, T = 0.35;
 
    // define the e-array equal to [1, 1, ... , 1]^T
-   for (int i = 0; i < 50; ++i) {
+   for (int i = 1; i <= 50; ++i) {
        e[1][i] = 1;
    }
 
@@ -60,14 +67,10 @@ int main () {
    // the actual minimum variance portfolio for the provided covariance matrix 
    actual_mv = Multiply(ScalarMultiple((1/c[1][1]), I), Transpose(e));
 
-   printf("The actual minimum variance portoflio\n");
-   for (int i = 1; i < 50; ++i) {
+   printf("The actual minimum variance portoflio is\n");
+   for (int i = 1; i <= 50; ++i) {
        printf("%8.4f\n", actual_mv[i][1]);
    }
-
-   // variance and weight array 
-   double **var1, **var2;
-   double** wt = Array(1, 50);
 
    // initial weight (generate random initial weight)
    double sample[50] = { 0.0386, 0.0377, 0.1457, 0.0005, 0.0203, 0.0282, 0.051, 0.2395, 0.1467, 0.1359,
@@ -78,28 +81,47 @@ int main () {
 
    // generates an initial vector for our invariant distribution 
    double** E0 = Array(1, 50); 
-   for (int i = 0; i < 50; ++i) {
-       E0[1][i] = sample[i];
+   for (int i = 1; i <= 50; ++i) {
+       E0[1][i] = sample[i-1];
    }
-   double** EX = Copy(E0);
+
+   // MONTE CARLO SIMULATION
 
    // generate our neighbor weight vector
-   int i1 = MTUniform(1) * 50; // index of element we will reduce weight
-   int i2 = MTUniform(1) * 50; // index of element we will add weight
+   double** EX = Copy(E0);
+   int i1 = MTUniform(1) * 50; // index of element to reduce weight
+   int i2 = MTUniform(0) * 50; // index of element to add weight
+
+   // calculate the portoflio variance 
+   var1 = Multiply(Multiply(E0, V), Transpose(E0));
 
    EX[1][i1] = EX[1][i1] - 0.0001;
    EX[1][i2] = EX[1][i2] + 0.0001;
-   
-   // calculate the portoflio variance 
-   var1 = Multiply(Multiply(E0, V), Transpose(E0));
    var2 = Multiply(Multiply(EX, V), Transpose(EX));
 
-   // if neighbor state is lower than prior, use initial
-   printf("Variance for initial state is %8.4f", var1[1][0]);
-   printf("Variance for initial state is %8.4f", var2[1][0]);
+   // if neighbor state is lower than prior, use the new state as our weight
+   if (var2[1][1] < var1[1][1]) {
+       E0 = EX;
+   }
+   // if neighbor is larger than prior, use accept/reject scheme 
+   else {
+       U = MTUniform(2); // generate a fresh uniform  
+       rho = exp(-(var2 - var1) / T);
+       printf("Fresh rho is %8.4f\n", rho);
+       if (U < rho) {
+           E0 = EX;
+       }
+   }
 
-   // if neighbor is larger than generate 
-
+   // Output the invariant distribution 
+   printf("The calculated minimum variance portoflio is\n");
+   for (int i = 1; i <= 50; ++i) {
+       printf("%8.4f\n", E0[1][i]);
+   }
+    
+   // compute the error of the projection
+   error = MSE(actual_mv, E0, 50.0);
+   // printf("Our mean squared error is % 8.4f\n", error[1][1]);
 
    // problem 2.
 
