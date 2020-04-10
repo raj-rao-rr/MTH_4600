@@ -15,26 +15,16 @@ double **V;
 
 // Calucates the Square of an array 
 void SquareArray(double**& arr) {
-    double row = arr[0][0], col = arr[0][1];
-    int length;
-
-    // checks to see if this is a vertical or horizontal array
-    if (row < col) {
-        length = col;
-    }
-    else {
-        length = row;
-    }
-
     // modifies the original array in memory 
-    for (int i = 1; i <= length; ++i) {
-        if (row < col) {
-            arr[1][i] = arr[1][i] * arr[1][i];
-        }
-        else {
-            arr[i][1] = arr[i][1] * arr[i][1];
-        }
+    for (int i = 1; i <= 50; ++i) {
+        arr[1][i] = arr[1][i] * arr[1][i];
     }
+}
+
+// Computes the Variance
+double Variance(double** &arr, double** &cov) {
+    // computes the expression wCw^T, where w - weights and C - covariance 
+    return Multiply(Multiply(arr, cov), Transpose(arr))[1][1];
 }
 
 // Calculates the Mean Squared Error 
@@ -45,8 +35,8 @@ double MSE(double** &actual, double** &pred, double n) {
     // squares the difference before scaling down the terms
     SquareArray(y1);
     double **y2 = ScalarMultiple(1.0 / n, y1);
-    double sum = 0.0;
 
+    double sum = 0.0;
     // computes the sum of reduced terms 
     for (int i = 1; i <= n; ++i) {
         sum += y2[1][i];
@@ -58,7 +48,7 @@ double MSE(double** &actual, double** &pred, double n) {
 
 int main () {
 
-   int i, seed;
+   int i;
 
    // Read in and display the tickers and covariance matrix.
    GetData ();
@@ -77,9 +67,10 @@ int main () {
 
    // problem 1. 
    // variable initialization 
-   double **I, **actual_mv, **EX, **c;
-   double** e = Array(1, 50);
-   double rho, U, var1, var2, error, T = 0.35;
+   double **I, **actual_mv, **EX;
+   double **e = Array(1, 50);
+   double rho, c, U, var1, var2, error, T = 0.45;
+   int i1, i2;
 
    // define the e-array equal to [1, 1, ... , 1]^T
    for (int i = 1; i <= 50; ++i) {
@@ -90,10 +81,10 @@ int main () {
    I = Invert(V);
 
    // compute the value of c = e^T*(V^{-1})*e
-   c = Multiply(Multiply(e,I), Transpose(e));
+   c = Multiply(Multiply(e,I), Transpose(e))[1][1];
 
    // the actual minimum variance portfolio for the provided covariance matrix 
-   actual_mv = Multiply(ScalarMultiple((1/c[1][1]), I), Transpose(e));
+   actual_mv = Multiply(ScalarMultiple((1/c), I), Transpose(e));
 
    printf("The actual minimum variance portoflio is\n");
    for (int i = 1; i <= 50; ++i) {
@@ -113,20 +104,23 @@ int main () {
        E0[1][i] = sample[i-1];
    }
 
+   printf("Simulation begins...\n");
    // MONTE CARLO SIMULATION
-   for (int j = 1; j <= 10000000; ++j) {
+   for (int j = 1; j <= 1000000; ++j) {
 
        // generate our neighbor weight vector
        EX = E0;
-       int i1 = (int) (MTUniform(0) * 50); // index of element to reduce weight
-       int i2 = (int) (MTUniform(0) * 50); // index of element to add weight
-       
-       // calculate the portoflio variance 
-       var1 = Multiply(Multiply(E0, V), Transpose(E0))[1][1];
+       i1 = MTUniform(0) * 50; // index of element to reduce weight
+       i2 = MTUniform(0) * 50; // index of element to add weight
+      
+       // calculate the portfolio variance for weight 1 
+       var1 = Variance(E0, V);
 
        EX[1][i1] = EX[1][i1] - 0.0001;
        EX[1][i2] = EX[1][i2] + 0.0001;
-       var2 = Multiply(Multiply(EX, V), Transpose(EX))[1][1];
+
+       // calculate the portfolio variance for weight 2
+       var2 = Variance(EX, V);
 
        // if neighbor state is lower than prior, use the new state as our weight
        if (var2 < var1) {
@@ -144,7 +138,7 @@ int main () {
        }
 
        if (j % 100000 == 0) {
-           printf("At sim %8.4d with variance %8.4f\n", j, var1);
+           printf("At sim %8.4d -> variance is %8.4f\n", j, var1);
        }
    }
 
