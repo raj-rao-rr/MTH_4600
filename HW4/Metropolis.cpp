@@ -21,10 +21,24 @@ void SquareArray(double**& arr) {
     }
 }
 
+// Identifies the Presence of a Short position, flags with 1 for True
+int sFlag(double** arr, int size) {
+    int flag = 0;
+    for (int i = 1; i < size; ++i) {
+        if (arr[1][i] < 0) {
+            flag = 1;
+            break;
+        }
+    }
+    return flag;
+}
+
 // Computes the Variance
 double Variance(double** &arr, double** &cov) {
     // computes the expression wCw^T, where w - weights and C - covariance 
-    return Multiply(Multiply(arr, cov), Transpose(arr))[1][1];
+    double** a = Multiply(arr, cov);
+    double** b = Transpose(arr);
+    return Multiply(a, b)[1][1];
 }
 
 // Calculates the Mean Squared Error 
@@ -116,6 +130,7 @@ int main () {
        // calculate the portfolio variance for weight 1 
        var1 = Variance(E0, V);
 
+       // building the neighbor to the state
        EX[1][i1] = EX[1][i1] - 0.0001;
        EX[1][i2] = EX[1][i2] + 0.0001;
 
