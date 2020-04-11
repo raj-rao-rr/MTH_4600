@@ -86,7 +86,7 @@ double Twist (double);
 // The digits in hexadecimal (base 16) are 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, a, b,
 //                                         c, d, e, f.
 ////////////////////////////////////////////////////////////////////////////////
-double MTUniform (unsigned int seed) {
+double MTUniform (unsigned int &seed) {
 
    static unsigned int X[1248], m[2], initialized = 0, k;
    unsigned int N, Y;

@@ -100,7 +100,7 @@ int main () {
        EX[i2][1] += 0.0001;
 
        // calculate the portfolio variance for weight 2
-       var2 = Variance(EX, V);
+       var2 = Variance(&EX, &V);
 
        // compute the change in variances
        deltaVar = var2 - var1;
@@ -125,7 +125,7 @@ int main () {
            }
        }
 
-       if (j > 1100000) {
+       if (j % 100000 == 0) {
            printf("At sim %8.4d -> variance is %8.8f\n", j, var1);
        }
    }
