@@ -4,6 +4,10 @@
 
 // This function is found below.
 void GetData ();
+void SquareArray(double**&);
+double Variance(double**& , double**&);
+double MSE(double**&, double**&, double);
+int sFlag(double**&, int);
 
 // "ticker" is a global variable.
 char **ticker;
@@ -13,53 +17,6 @@ double **V;
 
 #include "Functions.h"
 #include <iostream>
-
-
-// Calucates the Square of an array 
-void SquareArray(double**& arr) {
-    // modifies the original array in memory 
-    for (int i = 1; i <= 50; ++i) {
-        arr[i][1] = arr[i][1] * arr[i][1];
-    }
-}
-
-// Identifies the Presence of a Short position, flags with 1 for True
-int sFlag(double** arr, int size) {
-    int flag = 0;
-    for (int i = 1; i < size; ++i) {
-        if (arr[i][1] < 0) {
-            flag = 1;
-            break;
-        }
-    }
-    return flag;
-}
-
-// Computes the Variance
-double Variance(double** &arr, double** &cov) {
-    // computes the expression wCw^T, where w - weights and C - covariance 
-    double** b = Transpose(arr);
-    double** a = Multiply(b, cov);
-    return Multiply(a, arr)[1][1];
-}
-
-// Calculates the Mean Squared Error 
-double MSE(double** &actual, double** &pred, double n) {
-    // takes the difference between the actual and simualted weights
-    double **y1 = Add(actual, ScalarMultiple(-1.0, pred));
-
-    // squares the difference before scaling down the terms
-    SquareArray(y1);
-    double **y2 = ScalarMultiple(1.0 / n, y1);
-
-    double sum = 0.0;
-    // computes the sum of reduced terms 
-    for (int i = 1; i <= n; ++i) {
-        sum += y2[i][1];
-    }
-
-    return sum;
-}
 
 
 int main () {
@@ -85,7 +42,7 @@ int main () {
    // variable initialization 
    double **I, **actual_mv;
    double **e = Array(1, 50);
-   double rho, c, U, var1, var2, error, deltaVar, T = 0.00001;
+   double rho, c, U, var1, var2, error, deltaVar, T = 0.000001;
    int i1, i2, seed=0;
 
    // define the e-array equal to [1, 1, ... , 1]^T
@@ -106,7 +63,7 @@ int main () {
    for (int i = 1; i <= 50; ++i) {
        printf("%8.4f\n", actual_mv[i][1]);
    }
-   printf("The minimum variance reached is %8.4f\n", Variance(actual_mv, V));
+   printf("The minimum variance reached is %8.8f\n", Variance(actual_mv, V));
 
    // generates an initial vector for our invariant distribution 
    double** E0 = Array(50, 1); 
@@ -124,13 +81,13 @@ int main () {
 
    printf("Simulation begins...\n");
    // MONTE CARLO SIMULATION
-   for (int j = 1; j <= 10000000; ++j) {
+   for (int j = 1; j <= 100; ++j) {
 
        // selects our stock weights to swap 
        while (1) {
            // Pick two numbers independently and uniformly from {1,...,50}.
-           i1 = 1 + (int) (MTUniform(seed) * 50); // index of element to reduce weight
-           i2 = 1 + (int) (MTUniform(seed) * 50); // index of element to add weight
+           i1 = 1 + int(MTUniform(seed) * 50); // index of element to reduce weight
+           i2 = 1 + int(MTUniform(seed) * 50); // index of element to add weight
   
            // See if they are acceptable, i.e, if they satisfy (1) and (2) above.
            if (i1 != i2) {
@@ -158,7 +115,7 @@ int main () {
            rho = exp(-deltaVar / T);
 
            // if U < our rho we modify our weight to the new neighbor 
-           if (U < rho) {
+           if (U <= rho) {
                var1 = var2;
            }
            else {
@@ -168,8 +125,8 @@ int main () {
            }
        }
 
-       if (j % 100000 == 0) {
-           printf("At sim %8.4d -> variance is %8.4f\n", j, var1);
+       if (j > 1100000) {
+           printf("At sim %8.4d -> variance is %8.8f\n", j, var1);
        }
    }
 
@@ -178,7 +135,7 @@ int main () {
    for (int i = 1; i <= 50; ++i) {
        printf("%8.4f\n", EX[i][1]);
    }
-   printf("The minimum variance reached is %8.4f\n", var1);
+   printf("The minimum variance reached is %8.8f\n", var1);
     
    // compute the error of the projection
    error = MSE(actual_mv, EX, 50.0);
@@ -204,6 +161,55 @@ int main () {
 
 }
 
+////////////////////////////////////////////////////////////////////////////////
+// Allocate space for helper functions
+////////////////////////////////////////////////////////////////////////////////
+
+// Calucates the Square of an array 
+void SquareArray(double**& arr) {
+    // modifies the original array in memory 
+    for (int i = 1; i <= 50; ++i) {
+        arr[i][1] = arr[i][1] * arr[i][1];
+    }
+}
+
+// Identifies the presence of a Short position, flags with 1 for True
+int sFlag(double**& arr, int size) {
+    int flag = 0;
+    for (int i = 1; i < size; ++i) {
+        if (arr[i][1] < 0) {
+            flag = 1;
+            break;
+        }
+    }
+    return flag;
+}
+
+// Computes the Variance of a given set of weights
+double Variance(double**& arr, double**& cov) {
+    // computes the expression wCw^T, where w - weights and C - covariance 
+    double** b = Transpose(arr);
+    double** a = Multiply(b, cov);
+    return Multiply(a, arr)[1][1];
+}
+
+// Calculates the Mean Squared Error 
+double MSE(double**& actual, double**& pred, double n) {
+    // takes the difference between the actual and simualted weights
+    double** y1 = Add(actual, ScalarMultiple(-1.0, pred));
+
+    // squares the difference before scaling down the terms
+    SquareArray(y1);
+    double** y2 = ScalarMultiple(1.0 / n, y1);
+
+    double sum = 0.0;
+    // computes the sum of reduced terms 
+    for (int i = 1; i <= n; ++i) {
+        sum += y2[i][1];
+    }
+
+    return sum;
+}
 
 
 ////////////////////////////////////////////////////////////////////////////////
