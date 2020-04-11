@@ -36,9 +36,9 @@ int sFlag(double** arr, int size) {
 // Computes the Variance
 double Variance(double** &arr, double** &cov) {
     // computes the expression wCw^T, where w - weights and C - covariance 
-    double** a = Multiply(arr, cov);
     double** b = Transpose(arr);
-    return Multiply(a, b)[1][1];
+    double** a = Multiply(b, cov);
+    return Multiply(a, arr)[1][1];
 }
 
 // Calculates the Mean Squared Error 
