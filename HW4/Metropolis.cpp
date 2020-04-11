@@ -85,8 +85,8 @@ int main () {
    // variable initialization 
    double **I, **actual_mv;
    double **e = Array(1, 50);
-   double rho, c, U, var1, var2, error, T = 0.35;
-   int i1, i2;
+   double rho, c, U, var1, var2, error, deltaVar, T = 0.00001;
+   int i1, i2, seed=0;
 
    // define the e-array equal to [1, 1, ... , 1]^T
    for (int i = 1; i <= 50; ++i) {
@@ -109,9 +109,14 @@ int main () {
    printf("The minimum variance reached is %8.4f\n", Variance(actual_mv, V));
 
    // generates an initial vector for our invariant distribution 
-   double **EX,** E0 = Array(50, 1); 
+   double** E0 = Array(50, 1); 
    for (int i = 1; i <= 50; ++i) {
-       E0[i][1] = 0.02;
+       E0[i][1] = 0.0200;
+   }
+
+   double** EX = Array(50, 1);
+   for (int i = 1; i <= 50; ++i) {
+       EX[i][1] = E0[i][1];
    }
 
    // calculate the portfolio variance for original weight
@@ -119,18 +124,14 @@ int main () {
 
    printf("Simulation begins...\n");
    // MONTE CARLO SIMULATION
-   for (int j = 1; j <= 100; ++j) {
-       std::cout << "Memory location of E0 is \n" << (long) (&E0) << "\n";
-       std::cout << "Memory location of EX is \n" << (long) (&EX) << "\n";
-       // generate our neighbor weight vector
-       EX = E0;
+   for (int j = 1; j <= 10000000; ++j) {
 
        // selects our stock weights to swap 
        while (1) {
            // Pick two numbers independently and uniformly from {1,...,50}.
-           i1 = 1 + (int) (MTUniform(0) * 50); // index of element to reduce weight
-           i2 = 1 + (int) (MTUniform(0) * 50); // index of element to add weight
-
+           i1 = 1 + (int) (MTUniform(seed) * 50); // index of element to reduce weight
+           i2 = 1 + (int) (MTUniform(seed) * 50); // index of element to add weight
+  
            // See if they are acceptable, i.e, if they satisfy (1) and (2) above.
            if (i1 != i2) {
                break;
@@ -144,37 +145,43 @@ int main () {
        // calculate the portfolio variance for weight 2
        var2 = Variance(EX, V);
 
+       // compute the change in variances
+       deltaVar = var2 - var1;
+
        // if neighbor state is lower than prior, use the new state as our weight
-       if (var2 < var1) {
-           E0 = EX;
+       if (deltaVar <= 0) {
            var1 = var2;
        }
        // if neighbor is larger than prior, use accept/reject scheme 
        else {
-           U = MTUniform(0); // generate a fresh uniform  
-           rho = exp(-(var2 - var1) / T);
+           U = MTUniform(seed); // generate a fresh uniform  
+           rho = exp(-deltaVar / T);
 
            // if U < our rho we modify our weight to the new neighbor 
            if (U < rho) {
-               E0 = EX;
                var1 = var2;
+           }
+           else {
+               // returning back to the previous state 
+               EX[i1][1] += 0.0001;
+               EX[i2][1] -= 0.0001;
            }
        }
 
-       /*if (j % 10 == 0) {
+       if (j % 100000 == 0) {
            printf("At sim %8.4d -> variance is %8.4f\n", j, var1);
-       }*/
+       }
    }
 
    // Output the invariant distribution 
    printf("The calculated minimum variance portoflio is\n");
    for (int i = 1; i <= 50; ++i) {
-       printf("%8.4f\n", E0[i][1]);
+       printf("%8.4f\n", EX[i][1]);
    }
-   printf("The minimum variance reached is %8.4f\n", Variance(E0, V));
+   printf("The minimum variance reached is %8.4f\n", var1);
     
    // compute the error of the projection
-   error = MSE(actual_mv, E0, 50.0);
+   error = MSE(actual_mv, EX, 50.0);
    printf("Our mean squared error is % 8.4f\n", error);
 
    // problem 2.
