@@ -242,12 +242,12 @@ int main () {
    //////////////////////////////////////////////////////////////////
 
    // variable initialization 
-   double rho, U, var1, var2, error, deltaVar, num = 1.0, T = 0.02;
-   int i1, i2, seed = 0;
+   double rho, U, var1, var2, error, deltaVar, wt = 1.0, mod = 0.0, num = 1.0, T = 0.02;
+   int i1, seed = 0;
 
    // generates an initial vector for our invariant distribution 
    double** E0 = Array(50, 1);
-   E0[50][1] = 1.0;
+   E0[50][1] = wt;
 
    double** EX = Array(50, 1);
    for (int i = 1; i <= 50; ++i) {
@@ -259,28 +259,41 @@ int main () {
 
    printf("Simulation begins...\n");
    // MONTE CARLO SIMULATION
-   for (int j = 1; j <= 2000000; ++j) {
+   for (int j = 1; j <= 1100000; ++j) {
 
-       // selects our stock weights to swap 
-       while (1) {
-           // Pick two numbers independently and uniformly from {1,...,50}.
-           i1 = 1 + int(MTUniform(seed) * 50); // index of element to reduce weight
-           i2 = 1 + int(MTUniform(seed) * 50); // index of element to add weight
+       // Pick two numbers independently and uniformly from {1,...,50}.
+       i1 = 1 + int(MTUniform(seed) * 50); // index of element to reduce weight
 
-           // See if they are acceptable, i.e, if they satisfy (1) and (2) above.
-           if (i1 != i2) {
-               break;
+       // performs a "flip" in defining the neighbors for each state
+       if (EX[i1][1] > 0) {
+           EX[i1][1] = 0.0;
+           mod = -1;
+           num += mod;
+       }
+       else {
+           EX[i1][1] = 1.0;
+           mod = 1;
+           num += mod;
+       }
+
+       // if their are no stocks present we assign no wt to the portfolio
+       if (num != 0) {
+           // simple portfolio even distribution
+           wt = 1 / num;
+       }
+       else {
+           wt = 0.0;
+       }
+
+       // reassign the weights of the vector evenly
+       for (int i = 1; i <= 50; ++i) {
+           // if there is a postive weight we reasign it 
+           if (EX[i][1] > 0) {
+               EX[i][1] = wt;
            }
        }
 
-       // building the neighbor to the state
-       EX[i1][1] -= 0.0001;
-       EX[i2][1] += 0.0001;
-
-       // Check to see if there is a short position in the weights
-       flag = sFlag(EX, 50);
-
-       if (flag == 0) {
+       if (num != 0) {
            // calculate the portfolio variance for weight 2
            var2 = Variance(EX, V);
        }
@@ -305,9 +318,27 @@ int main () {
                var1 += deltaVar;
            }
            else {
-               // returning back to the previous state 
-               EX[i1][1] += 0.0001;
-               EX[i2][1] -= 0.0001;
+               // returning back to the previous state (number of stocks and weights)
+               num -= mod;
+               wt = 1 / num;
+
+               // if the modification was to add a stock, we reduce the weight to 0.0
+               if (mod > 0) {
+                   EX[i1][1] = 0.0;
+               }
+               // if the modification was to remove a stock, we add the weight back 
+               else {
+                   EX[i1][1] = 1.0;
+               }
+               
+               // reassign the weights of the vector evenly
+               for (int i = 1; i <= 50; ++i) {
+                   // if there is a postive weight we reasign it 
+                   if (EX[i][1] > 0) {
+                       EX[i][1] = wt;
+                   }
+               }
+
            }
        }
 
