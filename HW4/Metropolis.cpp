@@ -152,7 +152,7 @@ int main () {
    //////////////////////////////////////////////////////////////////
 
    //// variable initialization 
-   //double rho, c, U, var1, var2, error, deltaVar, T = 0.000001;
+   //double rho, U, var1, var2, error, deltaVar, T = 0.000001;
    //int i1, i2, flag, seed=0;
 
    //// generates an initial vector for our invariant distribution 
@@ -242,14 +242,12 @@ int main () {
    //////////////////////////////////////////////////////////////////
 
    // variable initialization 
-   double rho, c, U, var1, var2, error, deltaVar, T = 0.02;
-   int i1, i2, flag, seed = 0;
+   double rho, U, var1, var2, error, deltaVar, num = 1.0, T = 0.02;
+   int i1, i2, seed = 0;
 
    // generates an initial vector for our invariant distribution 
    double** E0 = Array(50, 1);
-   for (int i = 1; i <= 50; ++i) {
-       E0[i][1] = 0.0200;
-   }
+   E0[50][1] = 1.0;
 
    double** EX = Array(50, 1);
    for (int i = 1; i <= 50; ++i) {
