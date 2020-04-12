@@ -38,32 +38,115 @@ int main () {
    /////////////////////////////////////////////////////////////////////////////
    // Your Metropolis algorithm starts here...
 
-   // problem 1. 
+   //// problem 1. 
+   //// variable initialization 
+   //double **I, **actual_mv;
+   //double **e = Array(1, 50);
+   //double rho, c, U, var1, var2, error, deltaVar, T = 0.000001;
+   //int i1, i2, seed=0;
+
+   //// define the e-array equal to [1, 1, ... , 1]^T
+   //for (int i = 1; i <= 50; ++i) {
+   //    e[1][i] = 1;
+   //}
+
+   //// compute the inverted matrix V^{-1}
+   //I = Invert(V);
+
+   //// compute the value of c = e^T*(V^{-1})*e
+   //c = Multiply(Multiply(e,I), Transpose(e))[1][1];
+
+   //// the actual minimum variance portfolio for the provided covariance matrix 
+   //actual_mv = Multiply(ScalarMultiple((1/c), I), Transpose(e));
+
+   //printf("The actual minimum variance portoflio is\n");
+   //for (int i = 1; i <= 50; ++i) {
+   //    printf("%8.4f\n", actual_mv[i][1]);
+   //}
+   //printf("The minimum variance reached is %8.8f\n", Variance(actual_mv, V));
+   //printf("-------------------------------------------------------------\n");
+
+   //// generates an initial vector for our invariant distribution 
+   //double** E0 = Array(50, 1); 
+   //for (int i = 1; i <= 50; ++i) {
+   //    E0[i][1] = 0.0200;
+   //}
+
+   //double** EX = Array(50, 1);
+   //for (int i = 1; i <= 50; ++i) {
+   //    EX[i][1] = E0[i][1];
+   //}
+
+   //// calculate the portfolio variance for original weight
+   //var1 = Variance(E0, V);
+
+   //printf("Simulation begins...\n");
+   //// MONTE CARLO SIMULATION
+   //for (int j = 1; j <= 1100000; ++j) {
+
+   //    // selects our stock weights to swap 
+   //    while (1) {
+   //        // Pick two numbers independently and uniformly from {1,...,50}.
+   //        i1 = 1 + int(MTUniform(seed) * 50); // index of element to reduce weight
+   //        i2 = 1 + int(MTUniform(seed) * 50); // index of element to add weight
+  
+   //        // See if they are acceptable, i.e, if they satisfy (1) and (2) above.
+   //        if (i1 != i2) {
+   //            break;
+   //        }
+   //    }
+   //   
+   //    // building the neighbor to the state
+   //    EX[i1][1] -= 0.0001;
+   //    EX[i2][1] += 0.0001;
+
+   //    // calculate the portfolio variance for weight 2
+   //    var2 = Variance(EX, V);
+
+   //    // compute the change in variances
+   //    deltaVar = var2 - var1;
+
+   //    // if neighbor state is lower than prior, use the new state as our weight
+   //    if (deltaVar <= 0) {
+   //        var1 += deltaVar;
+   //    }
+   //    // if neighbor is larger than prior, use accept/reject scheme 
+   //    else {
+   //        U = MTUniform(seed); // generate a fresh uniform  
+   //        rho = exp(-deltaVar / T);
+
+   //        // if U < our rho we modify our weight to the new neighbor 
+   //        if (U <= rho) {
+   //            var1 += deltaVar;
+   //        }
+   //        else {
+   //            // returning back to the previous state 
+   //            EX[i1][1] += 0.0001;
+   //            EX[i2][1] -= 0.0001;
+   //        }
+   //    }
+
+   //    if (j % 100000 == 0) {
+   //        printf("At sim %8.4d -> variance is %8.8f\n", j, var1);
+   //    }
+   //}
+
+   //// Output the invariant distribution 
+   //printf("The calculated minimum variance portoflio is\n");
+   //for (int i = 1; i <= 50; ++i) {
+   //    printf("%8.4f\n", EX[i][1]);
+   //}
+   //printf("The minimum variance reached is %8.8f\n", var1);
+   // 
+   //// compute the error of the projection
+   //error = MSE(actual_mv, EX, 50.0);
+   //printf("Our mean squared error is % 8.8f\n", error);
+
+   // problem 2.
+
    // variable initialization 
-   double **I, **actual_mv;
-   double **e = Array(1, 50);
    double rho, c, U, var1, var2, error, deltaVar, T = 0.000001;
-   int i1, i2, seed=0;
-
-   // define the e-array equal to [1, 1, ... , 1]^T
-   for (int i = 1; i <= 50; ++i) {
-       e[1][i] = 1;
-   }
-
-   // compute the inverted matrix V^{-1}
-   I = Invert(V);
-
-   // compute the value of c = e^T*(V^{-1})*e
-   c = Multiply(Multiply(e,I), Transpose(e))[1][1];
-
-   // the actual minimum variance portfolio for the provided covariance matrix 
-   actual_mv = Multiply(ScalarMultiple((1/c), I), Transpose(e));
-
-   printf("The actual minimum variance portoflio is\n");
-   for (int i = 1; i <= 50; ++i) {
-       printf("%8.4f\n", actual_mv[i][1]);
-   }
-   printf("The minimum variance reached is %8.8f\n", Variance(actual_mv, V));
+   int i1, i2, flag, seed=0;
 
    // generates an initial vector for our invariant distribution 
    double** E0 = Array(50, 1); 
@@ -81,7 +164,7 @@ int main () {
 
    printf("Simulation begins...\n");
    // MONTE CARLO SIMULATION
-   for (int j = 1; j <= 100; ++j) {
+   for (int j = 1; j <= 2000000; ++j) {
 
        // selects our stock weights to swap 
        while (1) {
@@ -99,15 +182,23 @@ int main () {
        EX[i1][1] -= 0.0001;
        EX[i2][1] += 0.0001;
 
-       // calculate the portfolio variance for weight 2
-       var2 = Variance(&EX, &V);
+       // Check to see if there is a short position in the weights
+       flag = sFlag(EX, 50);
+
+       if (flag == 0) {
+           // calculate the portfolio variance for weight 2
+           var2 = Variance(EX, V);
+       }
+       else {
+           var2 = 1000;
+       }
 
        // compute the change in variances
        deltaVar = var2 - var1;
 
        // if neighbor state is lower than prior, use the new state as our weight
        if (deltaVar <= 0) {
-           var1 = var2;
+           var1 += deltaVar;
        }
        // if neighbor is larger than prior, use accept/reject scheme 
        else {
@@ -116,7 +207,7 @@ int main () {
 
            // if U < our rho we modify our weight to the new neighbor 
            if (U <= rho) {
-               var1 = var2;
+               var1 += deltaVar;
            }
            else {
                // returning back to the previous state 
@@ -136,13 +227,6 @@ int main () {
        printf("%8.4f\n", EX[i][1]);
    }
    printf("The minimum variance reached is %8.8f\n", var1);
-    
-   // compute the error of the projection
-   error = MSE(actual_mv, EX, 50.0);
-   printf("Our mean squared error is % 8.4f\n", error);
-
-   // problem 2.
-
 
    // problem 3.
 
@@ -177,7 +261,7 @@ void SquareArray(double**& arr) {
 int sFlag(double**& arr, int size) {
     int flag = 0;
     for (int i = 1; i < size; ++i) {
-        if (arr[i][1] < 0) {
+        if (arr[i][1] < 0.0) {
             flag = 1;
             break;
         }
