@@ -551,13 +551,12 @@ int main () {
 
    // if the state is lower than all neighbors it is stable 
    if (count == 50) {
-       printf("We have found a stable state\n");
-
+       printf("We have found a stable state, the portfolio is\n");
+       printf("Stock  |  Weighting \n");
+       printf("-----------------\n");
        // Report the best-found portfolio and its variance here.
-       printf("Our non-optimal minimum variance portoflio is\n");
        for (int i = 1; i <= 50; ++i) {
-           printf(ticker[i])
-           printf("   %8.4f\n", EX[i][1]);
+           printf("%s %8.4f\n", ticker[i], EX[i][1]);
        }
        printf("The minimum variance reached is %8.8f\n", var1);
    }
