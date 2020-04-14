@@ -5,6 +5,7 @@
 // This function is found below.
 void GetData ();
 void SquareArray(double**&);
+int arrCheck(double**&, double**&);
 double Variance(double**& , double**&);
 double MSE(double**&, double**&, double);
 int sFlag(double**&, int);
@@ -241,8 +242,126 @@ int main () {
    // problem 3.
    //////////////////////////////////////////////////////////////////
 
+   //// variable initialization 
+   //double rho, U, var1, var2, error, deltaVar, wt = 1.0, mod = 0.0, num = 1.0, T = 0.02;
+   //int i1, seed = 0;
+
+   //// generates an initial vector for our invariant distribution 
+   //double** E0 = Array(50, 1);
+   //E0[50][1] = wt;
+
+   //double** EX = Array(50, 1);
+   //for (int i = 1; i <= 50; ++i) {
+   //    EX[i][1] = E0[i][1];
+   //}
+
+   //// calculate the portfolio variance for original weight
+   //var1 = Variance(E0, V);
+
+   //printf("Simulation begins...\n");
+   //// MONTE CARLO SIMULATION
+   //for (int j = 1; j <= 1100000; ++j) {
+
+   //    // Pick two numbers independently and uniformly from {1,...,50}.
+   //    i1 = 1 + int(MTUniform(seed) * 50); // index of element to reduce weight
+
+   //    // performs a "flip" in defining the neighbors for each state
+   //    if (EX[i1][1] > 0) {
+   //        EX[i1][1] = 0.0;
+   //        mod = -1;
+   //        num += mod;
+   //    }
+   //    else {
+   //        EX[i1][1] = 1.0;
+   //        mod = 1;
+   //        num += mod;
+   //    }
+
+   //    // if their are no stocks present we assign no wt to the portfolio
+   //    if (num != 0) {
+   //        // simple portfolio even distribution
+   //        wt = 1.0 / num;
+   //    }
+   //    else {
+   //        wt = 0.0;
+   //    }
+
+   //    // reassign the weights of the vector evenly
+   //    for (int i = 1; i <= 50; ++i) {
+   //        // if there is a postive weight we reasign it 
+   //        if (EX[i][1] > 0) {
+   //            EX[i][1] = wt;
+   //        }
+   //    }
+
+   //    if (num != 0) {
+   //        // calculate the portfolio variance for weight 2
+   //        var2 = Variance(EX, V);
+   //    }
+   //    else {
+   //        var2 = 1000;
+   //    }
+
+   //    // compute the change in variances
+   //    deltaVar = var2 - var1;
+
+   //    // if neighbor state is lower than prior, use the new state as our weight
+   //    if (deltaVar <= 0) {
+   //        var1 += deltaVar;
+   //    }
+   //    // if neighbor is larger than prior, use accept/reject scheme 
+   //    else {
+   //        U = MTUniform(seed); // generate a fresh uniform  
+   //        rho = exp(-deltaVar / T);
+
+   //        // if U < our rho we modify our weight to the new neighbor 
+   //        if (U <= rho) {
+   //            var1 += deltaVar;
+   //        }
+   //        else {
+   //            // returning back to the previous state (number of stocks and weights)
+   //            num -= mod;
+   //            wt = 1.0 / num;
+
+   //            // if the modification was to add a stock, we reduce the weight to 0.0
+   //            if (mod > 0) {
+   //                EX[i1][1] = 0.0;
+   //            }
+   //            // if the modification was to remove a stock, we add the weight back 
+   //            else {
+   //                EX[i1][1] = 1.0;
+   //            }
+   //            
+   //            // reassign the weights of the vector evenly
+   //            for (int i = 1; i <= 50; ++i) {
+   //                // if there is a postive weight we reasign it 
+   //                if (EX[i][1] > 0) {
+   //                    EX[i][1] = wt;
+   //                }
+   //            }
+
+   //        }
+   //    }
+
+   //    if (j % 100000 == 0) {
+   //        printf("At sim %8.4d -> variance is %8.8f\n", j, var1);
+   //    }
+   //}
+
+   //// Report the best-found portfolio and its variance here.
+   //printf("The calculated minimum variance portoflio is\n");
+   //for (int i = 1; i <= 50; ++i) {
+   //    printf("%8.4f\n", EX[i][1]);
+   //}
+   //printf("The minimum variance reached is %8.8f\n", var1);
+
+
+   //////////////////////////////////////////////////////////////////
+   // problem 4.
+   //////////////////////////////////////////////////////////////////
+
    // variable initialization 
-   double rho, U, var1, var2, error, deltaVar, wt = 1.0, mod = 0.0, num = 1.0, T = 0.02;
+   double rho, U, var1, var2, var3, error, deltaVar, wt = 1.0, mod = 0.0, num = 1.0, T = 0.00;
    int i1, seed = 0;
 
    // generates an initial vector for our invariant distribution 
@@ -259,7 +378,7 @@ int main () {
 
    printf("Simulation begins...\n");
    // MONTE CARLO SIMULATION
-   for (int j = 1; j <= 1100000; ++j) {
+   for (int j = 1; j <= 500000; ++j) {
 
        // Pick two numbers independently and uniformly from {1,...,50}.
        i1 = 1 + int(MTUniform(seed) * 50); // index of element to reduce weight
@@ -279,7 +398,7 @@ int main () {
        // if their are no stocks present we assign no wt to the portfolio
        if (num != 0) {
            // simple portfolio even distribution
-           wt = 1 / num;
+           wt = 1.0 / num;
        }
        else {
            wt = 0.0;
@@ -320,7 +439,7 @@ int main () {
            else {
                // returning back to the previous state (number of stocks and weights)
                num -= mod;
-               wt = 1 / num;
+               wt = 1.0 / num;
 
                // if the modification was to add a stock, we reduce the weight to 0.0
                if (mod > 0) {
@@ -343,7 +462,7 @@ int main () {
        }
 
        if (j % 100000 == 0) {
-           printf("At sim %8.4d -> variance is %8.8f\n", j, var1);
+           printf("At sim %8.4d -> variance is %8.8f...\n", j, var1);
        }
    }
 
@@ -354,15 +473,64 @@ int main () {
    }
    printf("The minimum variance reached is %8.8f\n", var1);
 
+   // Verify that the state constructed is in fact a stable state 
+   double** EZ = Array(50, 1);
+   for (int i = 1; i <= 50; ++i) {
+       EZ[i][1] = EX[i][1];
+   }
 
-   //////////////////////////////////////////////////////////////////
-   // problem 4.
-   //////////////////////////////////////////////////////////////////
+   // count the amount of times the var is best
+   int count = 0;
 
+   // itterate throuhg each neighboring state
+   for (int j = 0; j < 50; ++j) {
 
+       // performs a "flip" in defining the neighbors for each state
+       if (EZ[j][1] > 0) {
+           EZ[j][1] = 0.0;
+           mod = -1;
+           num += mod;
+       }
+       else {
+           EZ[j][1] = 1.0;
+           mod = 1;
+           num += mod;
+       }
 
-   // and ends here. 
-   /////////////////////////////////////////////////////////////////////////////
+       // if their are no stocks present we assign no wt to the portfolio
+       if (num != 0) {
+           // simple portfolio even distribution
+           wt = 1.0 / num;
+       }
+       else {
+           wt = 0.0;
+       }
+
+       // reassign the weights of the vector evenly
+       for (int i = 1; i <= 50; ++i) {
+           // if there is a postive weight we reasign it 
+           if (EZ[i][1] > 0) {
+               EZ[i][1] = wt;
+           }
+       }
+
+       if (num != 0) {
+           // calculate the portfolio variance for weight 2
+           var3 = Variance(EZ, V);
+       }
+       else {
+           var3 = 1000;
+       }
+
+       if (var3 > var1) {
+       
+       }
+       else {
+           printf("A neighboring state has violated the condition");
+           break;
+       }
+
+   }
 
 
    // Pause so the execution window does not close.
@@ -373,6 +541,18 @@ int main () {
 ////////////////////////////////////////////////////////////////////////////////
 // Allocate space for helper functions
 ////////////////////////////////////////////////////////////////////////////////
+
+// Determines if two arrays are identical 
+int arrCheck(double**& arr1, double**& arr2) {
+    // check each term of the array to see if it matches o(n) speed
+    for (int i = 1; i <= 50; ++i) {
+        if (arr1[i][1] != arr2[i][1]) {
+            return 0;
+        }
+    }
+    return 1;
+}
+
 
 // Calucates the Square of an array 
 void SquareArray(double**& arr) {
@@ -385,7 +565,7 @@ void SquareArray(double**& arr) {
 // Identifies the presence of a Short position, flags with 1 for True
 int sFlag(double**& arr, int size) {
     int flag = 0;
-    for (int i = 1; i < size; ++i) {
+    for (int i = 1; i <= size; ++i) {
         if (arr[i][1] < 0.0) {
             flag = 1;
             break;
