@@ -37,7 +37,7 @@ double **Array (int, int);
 void     Show (double **);
 void     Write (double **, FILE *);
 double **Transpose (double **);
-double **Multiply (double **, double **);
+double **Multiply (double**, double**);
 double **Invert (double **);
 double **Copy (double **);
 double **Identity (int);
