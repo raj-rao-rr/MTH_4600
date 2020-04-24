@@ -4,7 +4,6 @@
 //    current (stochastic) and long-run volatility are 30% annually.
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "koolplot.h"
 #include "Functions.h"
 
 
@@ -16,34 +15,36 @@ double Max(double &val) {
 
 
 // function for plotting x and y data 
-void Plot(double& x, double& y) {
+void Plot(double x[], double y[]) {
     FILE* fp;
     fp = fopen("Plot.tex", "w");
 
     // construct the plot
-    fprintf(fp, "\begin{tikzpicture}\n");
-    fprintf(fp, "\begin{axis}[\n");
-    fprintf(fp, "title={Volatility Skew},\n");
-    fprintf(fp, "xlabel={Strike},\n");
-    fprintf(fp, "ylabel={Implied Volatility (IV)},\n");
-    fprintf(fp, "xmin=%8.4f, xmax=%8.4f,\n", x[0]*.80, x[0] * 1.20);
-    fprintf(fp, "ymin=%8.4f, ymax=%8.4f,\n", y[0] * .80, y[0] * 1.20);
-    fprintf(fp, "ymajorgrids=true,\n");
-    fprintf(fp, "grid style=dashed,\n");
+    fprintf(fp, "\\begin{tikzpicture}\n");
+    fprintf(fp, "\\begin{axis}[\n");
+    fprintf(fp, "\\title={Volatility Skew},\n");
+    fprintf(fp, "\\xlabel={Strike},\n");
+    fprintf(fp, "\\ylabel={Implied Volatility (IV)},\n");
+    fprintf(fp, "\\xmin=%8.4f, xmax=%8.4f,\n", x[0]*.80, x[0] * 1.20);
+    fprintf(fp, "\\ymin=%8.4f, ymax=%8.4f,\n", y[0] * .80, y[0] * 1.20);
+    fprintf(fp, "\\ymajorgrids=true,\n");
+    fprintf(fp, "\\grid style=dashed,\n");
 
     // add a plot
-    fprintf(fp, "\addplot[\n");
-    fprintf(fp, "color=blue,]\n");
-    fprintf(fp, "coordinates {\n");
+    fprintf(fp, "\\addplot[\n");
+    fprintf(fp, "\\color=blue,]\n");
+    fprintf(fp, "\\coordinates {\n");
     for (int i = 0; i < 11; ++i) {
         fprintf(fp, "(%8.4f, %8.4f)\n", x[i], y[i]);
     }
-    fprintf(fp, "};\n");
+    fprintf(fp, "\\};\n");
 
     // complete the construction 
-    fprintf(fp, "\end{axis}\n");
-    fprintf(fp, "\end{tikzpicture}\n");
+    fprintf(fp, "\\end{axis}\n");
+    fprintf(fp, "\\end{tikzpicture}\n");
     fclose(fp);
+
+    return;
 }
 
 
@@ -161,7 +162,7 @@ int main () {
    // Outputs value for problem 3
 
    // define x, y arrays
-   double x[11], y[11];
+   double x[11] , y[11];
 
    printf("Problem 3\n");
    for (int t = 0; t < 11; ++t) {
