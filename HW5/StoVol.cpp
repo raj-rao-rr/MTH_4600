@@ -7,11 +7,45 @@
 #include "koolplot.h"
 #include "Functions.h"
 
+
 // Used for calculating the max payoff of a simple vanilla call
 double Max(double &val) {
     if (val > 0.0) { return val; }
     return 0.0;
 }
+
+
+// function for plotting x and y data 
+void Plot(double& x, double& y) {
+    FILE* fp;
+    fp = fopen("Plot.tex", "w");
+
+    // construct the plot
+    fprintf(fp, "\begin{tikzpicture}\n");
+    fprintf(fp, "\begin{axis}[\n");
+    fprintf(fp, "title={Volatility Skew},\n");
+    fprintf(fp, "xlabel={Strike},\n");
+    fprintf(fp, "ylabel={Implied Volatility (IV)},\n");
+    fprintf(fp, "xmin=%8.4f, xmax=%8.4f,\n", x[0]*.80, x[0] * 1.20);
+    fprintf(fp, "ymin=%8.4f, ymax=%8.4f,\n", y[0] * .80, y[0] * 1.20);
+    fprintf(fp, "ymajorgrids=true,\n");
+    fprintf(fp, "grid style=dashed,\n");
+
+    // add a plot
+    fprintf(fp, "\addplot[\n");
+    fprintf(fp, "color=blue,]\n");
+    fprintf(fp, "coordinates {\n");
+    for (int i = 0; i < 11; ++i) {
+        fprintf(fp, "(%8.4f, %8.4f)\n", x[i], y[i]);
+    }
+    fprintf(fp, "};\n");
+
+    // complete the construction 
+    fprintf(fp, "\end{axis}\n");
+    fprintf(fp, "\end{tikzpicture}\n");
+    fclose(fp);
+}
+
 
 int main () {
 
@@ -138,7 +172,8 @@ int main () {
    }
    printf("--------------------------------------------------------------\n");
 
-   plot(x, y, "Volatility Skew", "Strikes", "Implied Volatility (IV)");
+   // outputs a latex file for plotting
+   Plot(x, y);
 
    Exit();
 }
