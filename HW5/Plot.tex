@@ -1,0 +1,26 @@
+\begin{tikzpicture}
+\begin{axis}[
+\title={Volatility Skew},
+\xlabel={Strike},
+\ylabel={Implied Volatility (IV)},
+\xmin= 48.0000, xmax= 72.0000,
+\ymin=  0.0000, ymax=  0.0000,
+\ymajorgrids=true,
+\grid style=dashed,
+\addplot[
+\color=blue,]
+\coordinates {
+( 60.0000,   0.0000)
+( 70.0000,   0.0000)
+( 80.0000,   0.0000)
+( 90.0000,   0.0000)
+(100.0000,   0.0000)
+(110.0000,   0.0000)
+(120.0000,   0.0000)
+(130.0000,   0.0000)
+(140.0000,   0.0000)
+(150.0000,   0.0000)
+(160.0000,   0.0000)
+\};
+\end{axis}
+\end{tikzpicture}
