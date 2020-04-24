@@ -4,6 +4,7 @@
 //    current (stochastic) and long-run volatility are 30% annually.
 ////////////////////////////////////////////////////////////////////////////////
 
+#include "koolplot.h"
 #include "Functions.h"
 
 // Used for calculating the max payoff of a simple vanilla call
@@ -16,8 +17,8 @@ int main () {
 
    int i, n, N, sims;
    double s_start, s, T, r, sigma, sigma2,  sigma2_start, mu, alpha, beta,
-          gamma, dt, N01, R, U, V2;
-   double val1, val2, avg1 = 0;
+          gamma, dt, N01, R, U, V2, K;
+   double val1, val2, val3,  avg1 = 0;
 
    double strikes[11] = { 60.0, 70.0, 80.0, 90.0, 100.0, 110.0, 120.0, 130.0, 140.0, 150.0, 160.0 };
    double averages[11] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
@@ -26,7 +27,7 @@ int main () {
    alpha = 0.045; beta = 0.083; gamma = 0.872;
 
    // number of simulations to run
-   sims = 100000;
+   sims = 1000000;
 
    // Time to expiration.
    T = 0.5;
@@ -118,9 +119,26 @@ int main () {
    // Outputs value for problem 2
    printf("Problem 2\n");
    for (int t = 0; t < 11; ++t) {
-       printf("Our call option with strike K = %8.2f is valued at %8.4f\n", strikes[t], averages[t] / sims);
+       K = strikes[t];
+       printf("Our call option with strike K = %8.2f is valued at %8.4f\n", K, averages[t] / sims);
    }
    printf("--------------------------------------------------------------\n");
+
+   // Outputs value for problem 3
+
+   // define x, y arrays
+   double x[11], y[11];
+
+   printf("Problem 3\n");
+   for (int t = 0; t < 11; ++t) {
+       val3 = averages[t] / sims;
+       K = strikes[t];
+       x[t] = K; y[t] = val3;
+       printf("Our call option with strike K = %8.2f has implied volatility at %8.4f\n", K, ImpliedVol(T, s_start, K, r, val3));
+   }
+   printf("--------------------------------------------------------------\n");
+
+   plot(x, y, "Volatility Skew", "Strikes", "Implied Volatility (IV)");
 
    Exit();
 }
