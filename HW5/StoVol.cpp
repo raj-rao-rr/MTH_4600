@@ -6,14 +6,27 @@
 
 #include "Functions.h"
 
+// Used for calculating the max payoff of a simple vanilla call
+double Max(double &val) {
+    if (val > 0.0) { return val; }
+    return 0.0;
+}
+
 int main () {
 
-   int i, n, N;
+   int i, n, N, sims;
    double s_start, s, T, r, sigma, sigma2,  sigma2_start, mu, alpha, beta,
           gamma, dt, N01, R, U, V2;
+   double val1, val2, avg1 = 0;
+
+   double strikes[11] = { 60.0, 70.0, 80.0, 90.0, 100.0, 110.0, 120.0, 130.0, 140.0, 150.0, 160.0 };
+   double averages[11] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
 
    // alpha, beta, and gamma parameters as computed in the XOM example.
    alpha = 0.045; beta = 0.083; gamma = 0.872;
+
+   // number of simulations to run
+   sims = 100000;
 
    // Time to expiration.
    T = 0.5;
@@ -46,8 +59,8 @@ int main () {
    // Seed the RNG.
    MTUniform (1);
 
-   // Generate 10 illustrative paths.
-   for (n = 1; n <= 10; n++) {
+   // Generate Monte Carlo paths for Stochastic volatility
+   for (n = 1; n <= sims; ++n) {
 
       // Initialize the stock price and the volatility to their starting (time 0)
       //    values.
@@ -55,7 +68,7 @@ int main () {
       sigma2 = sigma2_start;
 
       // Now march forward in time day by day.
-      for (i = 1; i <= N; i++) {
+      for (i = 1; i <= N; ++i) {
 
          // Compute the drift parameter that corresponds to the volatility for
          //    this period.
@@ -79,14 +92,37 @@ int main () {
 
          // Print the current stock price and annualized volatility to
          //    the screen.
-         printf ("%7.3f  %7.3f  %7.3f\n", i*dt, s, 100.0 * sqrt(sigma2 * 252.0));
+         // printf ("%7.3f  %7.3f  %7.3f\n", i*dt, s, 100.0 * sqrt(sigma2 * 252.0));
 
       }
 
-      Pause ();
+      // Problem 1 //
+      
+      // check the payoff with stock at terminal time t
+      val1 = s - 0;
+      avg1 += Max(val1);
 
-   } // Next path.
+      // Problem 2 //
+      for (int j = 0; j < 11; ++j) {
+          val2 = s - strikes[j];
+          averages[j] += Max(val2);
+      }
 
+   } 
+
+   // Outputs value for problem 1
+   printf("Problem 1\n");
+   printf("Our call option with strike K = 0 is valued at %8.4f\n", avg1 / sims);
+   printf("--------------------------------------------------------------\n");
+
+   // Outputs value for problem 2
+   printf("Problem 2\n");
+   for (int t = 0; t < 11; ++t) {
+       printf("Our call option with strike K = %8.2f is valued at %8.4f\n", strikes[t], averages[t] / sims);
+   }
+   printf("--------------------------------------------------------------\n");
+
+   Exit();
 }
 
 
