@@ -20,28 +20,33 @@ void Plot(double x[], double y[]) {
     fp = fopen("Plot.tex", "w");
 
     // construct the plot
+    fprintf(fp, "\\documentclass{standalone}\n");
+    fprintf(fp, "\\usepackage{pgfplots}\n");
+    fprintf(fp, "\\begin{document}\n");
     fprintf(fp, "\\begin{tikzpicture}\n");
+    // add a plot 
     fprintf(fp, "\\begin{axis}[\n");
     fprintf(fp, "\\title={Volatility Skew},\n");
-    fprintf(fp, "\\xlabel={Strike},\n");
+    fprintf(fp, "\\xlabel={Strikes},\n");
     fprintf(fp, "\\ylabel={Implied Volatility (IV)},\n");
-    fprintf(fp, "\\xmin=%8.4f, xmax=%8.4f,\n", x[0]*.80, x[0] * 1.20);
-    fprintf(fp, "\\ymin=%8.4f, ymax=%8.4f,\n", y[0] * .80, y[0] * 1.20);
+    fprintf(fp, "\\xmin=%8.4f, xmax=%8.4f,\n", x[0] * .80, x[10] * 1.20);
+    fprintf(fp, "\\ymin=%8.4f, ymax=%8.4f,\n", y[0] * .80, y[10] * 1.20);
     fprintf(fp, "\\ymajorgrids=true,\n");
     fprintf(fp, "\\grid style=dashed,\n");
+    fprintf(fp, "\\]\n");
+    fprintf(fp, "\\addplot [\n");
 
-    // add a plot
-    fprintf(fp, "\\addplot[\n");
-    fprintf(fp, "\\color=blue,]\n");
     fprintf(fp, "\\coordinates {\n");
     for (int i = 0; i < 11; ++i) {
         fprintf(fp, "(%8.4f, %8.4f)\n", x[i], y[i]);
     }
     fprintf(fp, "\\};\n");
+   
 
     // complete the construction 
     fprintf(fp, "\\end{axis}\n");
     fprintf(fp, "\\end{tikzpicture}\n");
+    fprintf(fp, "\\end{document}\n");
     fclose(fp);
 
     return;
@@ -53,7 +58,7 @@ int main () {
    int i, n, N, sims;
    double s_start, s, T, r, sigma, sigma2,  sigma2_start, mu, alpha, beta,
           gamma, dt, N01, R, U, V2, K;
-   double val1, val2, val3,  avg1;
+   double vol, val1, val2, val3,  avg1;
 
    double strikes[11] = { 60.0, 70.0, 80.0, 90.0, 100.0, 110.0, 120.0, 130.0, 140.0, 150.0, 160.0 };
    double averages[11] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
@@ -65,7 +70,7 @@ int main () {
    avg1 = 0.0;
 
    // number of simulations to run
-   sims = 100;
+   sims = 1000000;
 
    // Time to expiration.
    T = 0.5;
@@ -81,7 +86,7 @@ int main () {
    r *= dt;
 
    // Current stock price.
-   s_start = 10;
+   s_start = 100;
 
    // Current stock price variance.
    sigma2_start = 0.35 * 0.35;
@@ -129,16 +134,10 @@ int main () {
          // Update the stochastic volatility according to the GARCH(1,1) model.
          sigma2 = alpha * V2  +  beta * R*R +  gamma * sigma2;
 
-         // Print the current stock price and annualized volatility to
-         //    the screen.
-         // printf ("%7.3f  %7.3f  %7.3f\n", i*dt, s, 100.0 * sqrt(sigma2 * 252.0));
-
       }
 
       // Problem 1 //
-      val1 = s - 0.0;   // check the payoff with stock at terminal time t
-      printf("%8.4f\n", val1);
-      avg1 += val1;
+      avg1 += s; // since K = 0, we simply find the average of terminal stock price 
 
       // Problem 2 //
       for (int j = 0; j < 11; ++j) {
@@ -172,8 +171,10 @@ int main () {
    for (int t = 0; t < 11; ++t) {
        val3 = averages[t] / sims;
        K = strikes[t];
-       x[t] = K; y[t] = val3;
-       printf("Our call option with strike K = %8.2f has implied volatility at %8.4f\n", K, ImpliedVol(T, s_start, K, r, val3));
+       vol = ImpliedVol(T, s_start, K, r, val3);
+
+       x[t] = K; y[t] = vol;
+       printf("Our call option with strike K = %8.2f has implied volatility at %8.4f\n", K, vol);
    }
    printf("--------------------------------------------------------------\n");
 
