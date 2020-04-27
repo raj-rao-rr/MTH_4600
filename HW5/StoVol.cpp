@@ -99,9 +99,6 @@ int main () {
    // Daily long-term variance.
    V2 *= dt;
 
-   // Seed the RNG.
-   MTUniform (0);
-
    // Generate Monte Carlo paths for Stochastic volatility
    for (n = 1; n <= sims; ++n) {
 
@@ -151,9 +148,8 @@ int main () {
    } 
 
    // Outputs value for problem 1
-
    printf("\nProblem 1:\n");
-   printf("Our call option with strike K = 0 is valued at %8.4f\n", avg1 / sims);
+   printf("Our call option with strike K = 0 is valued at %8.4f\n", exp(-0.05*0.5)*(avg1 / sims));
    printf("--------------------------------------------------------------\n");
 
    // Outputs value for problem 2
@@ -161,7 +157,7 @@ int main () {
    printf("Problem 2:\n");
    for (int t = 0; t < 11; ++t) {
        K = strikes[t];
-       printf("Our call option with strike K = %8.2f is valued at %8.4f\n", K, averages[t] / sims);
+       printf("Our call option with strike K = %8.2f is valued at %8.4f\n", K, exp(-0.05 * 0.5) * (averages[t] / sims));
    }
    printf("--------------------------------------------------------------\n");
 
@@ -171,7 +167,7 @@ int main () {
    double x[11] , y[11];
    printf("Problem 3:\n");
    for (int t = 0; t < 11; ++t) {
-       val3 = averages[t] / sims;
+       val3 = exp(-0.05 * 0.5) * (averages[t] / sims);
        K = strikes[t];
        vol = ImpliedVol(T, s_start, K, r, val3);
 
