@@ -55,10 +55,9 @@ void Plot(double x[], double y[]) {
 
 int main () {
 
-   int i, n, N, sims;
+   int i, j, n, N, sims;
    double s_start, s, T, r, sigma, sigma2,  sigma2_start, mu, alpha, beta,
-          gamma, dt, N01, R, U, V2, K;
-   double vol, val1, val2, val3,  avg1;
+          gamma, dt, N01, R, U, V2, K, vol, val1, val2, val3,  avg1;
 
    double strikes[11] = { 60.0, 70.0, 80.0, 90.0, 100.0, 110.0, 120.0, 130.0, 140.0, 150.0, 160.0 };
    double averages[11] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
@@ -101,7 +100,7 @@ int main () {
    V2 *= dt;
 
    // Seed the RNG.
-   MTUniform (1);
+   MTUniform (0);
 
    // Generate Monte Carlo paths for Stochastic volatility
    for (n = 1; n <= sims; ++n) {
@@ -111,13 +110,13 @@ int main () {
       s = s_start;
       sigma2 = sigma2_start;
 
-      // Now march forward in time day by day.
+      // Now march forward in time day by day, generating stock price path
       for (i = 1; i <= N; ++i) {
 
          // Compute the drift parameter that corresponds to the volatility for
          //    this period.
-         mu = r - 0.5*sigma2;
-
+         //mu = r - 0.5*sigma2;
+         mu = 0;
          // Compute the stock price at day "i"...
 
          // First get a standard normal N01.
@@ -133,24 +132,27 @@ int main () {
 
          // Update the stochastic volatility according to the GARCH(1,1) model.
          sigma2 = alpha * V2  +  beta * R*R +  gamma * sigma2;
-
       }
 
       // Problem 1 //
       avg1 += s; // since K = 0, we simply find the average of terminal stock price 
 
       // Problem 2 //
-      for (int j = 0; j < 11; ++j) {
-          // itterate through each strike value 
+      for (j = 0; j < 11; ++j) {
+          // itterate through each strike value and subtract from terminal strike price  
           val2 = s - strikes[j];
           averages[j] += Max(val2);
+      }
+
+      if (n % 100000 == 0) {
+          printf("%8.2d have been completed...\n", n);
       }
 
    } 
 
    // Outputs value for problem 1
 
-   printf("Problem 1:\n");
+   printf("\nProblem 1:\n");
    printf("Our call option with strike K = 0 is valued at %8.4f\n", avg1 / sims);
    printf("--------------------------------------------------------------\n");
 
