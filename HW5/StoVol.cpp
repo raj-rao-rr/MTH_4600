@@ -14,45 +14,6 @@ double Max(double &val) {
 }
 
 
-// function for plotting x and y data 
-void Plot(double x[], double y[]) {
-    FILE* fp;
-    fp = fopen("Plot.tex", "w");
-
-    // construct the plot
-    fprintf(fp, "\\documentclass{standalone}\n");
-    fprintf(fp, "\\usepackage{pgfplots}\n");
-    fprintf(fp, "\\begin{document}\n");
-    fprintf(fp, "\\begin{tikzpicture}\n");
-    // add a plot 
-    fprintf(fp, "\\begin{axis}[\n");
-    fprintf(fp, "\\title={Volatility Skew},\n");
-    fprintf(fp, "\\xlabel={Strikes},\n");
-    fprintf(fp, "\\ylabel={Implied Volatility (IV)},\n");
-    fprintf(fp, "\\xmin=%8.4f, xmax=%8.4f,\n", x[0] * .80, x[10] * 1.20);
-    fprintf(fp, "\\ymin=%8.4f, ymax=%8.4f,\n", y[0] * .80, y[10] * 1.20);
-    fprintf(fp, "\\ymajorgrids=true,\n");
-    fprintf(fp, "\\grid style=dashed,\n");
-    fprintf(fp, "\\]\n");
-    fprintf(fp, "\\addplot [\n");
-
-    fprintf(fp, "\\coordinates {\n");
-    for (int i = 0; i < 11; ++i) {
-        fprintf(fp, "(%8.4f, %8.4f)\n", x[i], y[i]);
-    }
-    fprintf(fp, "\\};\n");
-   
-
-    // complete the construction 
-    fprintf(fp, "\\end{axis}\n");
-    fprintf(fp, "\\end{tikzpicture}\n");
-    fprintf(fp, "\\end{document}\n");
-    fclose(fp);
-
-    return;
-}
-
-
 int main () {
 
    int i, j, n, N, sims;
@@ -149,7 +110,7 @@ int main () {
 
    // Outputs value for problem 1
    printf("\nProblem 1:\n");
-   printf("Our call option with strike K = 0 is valued at %8.4f\n", exp(-0.05*0.5)*(avg1 / sims));
+   printf("Our call option with strike K = 0 is valued at %8.4f\n", exp(-0.05 * 0.5)*(avg1 / sims));
    printf("--------------------------------------------------------------\n");
 
    // Outputs value for problem 2
@@ -164,20 +125,15 @@ int main () {
    // Outputs value for problem 3
 
    // define x, y arrays
-   double x[11] , y[11];
    printf("Problem 3:\n");
    for (int t = 0; t < 11; ++t) {
        val3 = exp(-0.05 * 0.5) * (averages[t] / sims);
        K = strikes[t];
        vol = ImpliedVol(T, s_start, K, r, val3);
 
-       x[t] = K; y[t] = vol;
        printf("Our call option with strike K = %8.2f has implied volatility at %8.4f\n", K, vol);
    }
    printf("--------------------------------------------------------------\n");
-
-   // outputs a latex file for plotting
-   Plot(x, y);
 
    Exit();
 }
