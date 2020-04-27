@@ -93,12 +93,12 @@ int main () {
       }
 
       // Problem 1 //
-      avg1 += exp(-r * i) * s; // since K = 0, we simply find the average of terminal stock price 
+      avg1 += exp(-r * (i - 20)) * s; // since K = 0, we simply find the average of terminal stock price 
 
       // Problem 2 //
       for (j = 0; j < 11; ++j) {
           // itterate through each strike value and subtract from terminal strike price  
-          val2 = exp(-r * i) * (s - strikes[j]);
+          val2 = exp(-r * (i - 20)) * (s - strikes[j]);
           averages[j] += Max(val2);
       }
 
