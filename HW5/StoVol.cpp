@@ -30,7 +30,7 @@ int main () {
    avg1 = 0.0;
 
    // number of simulations to run
-   sims = 1000000;
+   sims = 10000000;
 
    // Time to expiration.
    T = 0.5;
@@ -93,12 +93,12 @@ int main () {
       }
 
       // Problem 1 //
-      avg1 += s; // since K = 0, we simply find the average of terminal stock price 
+      avg1 += exp(-0.05 * 0.5) * s; // since K = 0, we simply find the average of terminal stock price 
 
       // Problem 2 //
       for (j = 0; j < 11; ++j) {
           // itterate through each strike value and subtract from terminal strike price  
-          val2 = s - strikes[j];
+          val2 = exp(-0.05 * 0.5) * (s - strikes[j]);
           averages[j] += Max(val2);
       }
 
@@ -110,7 +110,7 @@ int main () {
 
    // Outputs value for problem 1
    printf("\nProblem 1:\n");
-   printf("Our call option with strike K = 0 is valued at %8.4f\n", exp(-0.05 * 0.5)*(avg1 / sims));
+   printf("Our call option with strike K = 0 is valued at %8.4f\n", avg1 / sims);
    printf("--------------------------------------------------------------\n");
 
    // Outputs value for problem 2
@@ -118,7 +118,7 @@ int main () {
    printf("Problem 2:\n");
    for (int t = 0; t < 11; ++t) {
        K = strikes[t];
-       printf("Our call option with strike K = %8.2f is valued at %8.4f\n", K, exp(-0.05 * 0.5) * (averages[t] / sims));
+       printf("Our call option with strike K = %8.2f is valued at %8.4f\n", K, averages[t] / sims);
    }
    printf("--------------------------------------------------------------\n");
 
@@ -127,9 +127,9 @@ int main () {
    // define x, y arrays
    printf("Problem 3:\n");
    for (int t = 0; t < 11; ++t) {
-       val3 = exp(-0.05 * 0.5) * (averages[t] / sims);
+       val3 = averages[t] / sims;
        K = strikes[t];
-       vol = ImpliedVol(T, s_start, K, r, val3);
+       vol = ImpliedVol(0.5, 100, K, 0.05, val3);
 
        printf("Our call option with strike K = %8.2f has implied volatility at %8.4f\n", K, vol);
    }
