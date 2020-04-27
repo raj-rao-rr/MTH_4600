@@ -1740,6 +1740,7 @@ double ImpliedVol (double tau, double s, double k, double r, double c) {
    // First make sure the price "c" is at least the zero-volatility value of
    //   the option.
    value0 = BlackScholes (tau, s, k, 0.0, r);
+
    if (value0 > c) {
       printf ("Zero-volatility value exceeds option price in ImpliedVol.\n");
       return -1;
