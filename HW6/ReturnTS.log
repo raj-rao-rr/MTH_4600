@@ -1,0 +1,26 @@
+This is LuaTeX, Version 1.11.2 (MiKTeX 2.9.7300 64-bit)  (format=luatex 2020.2.12)  8 MAY 2020 14:37
+ restricted system commands enabled.
+**ReturnTS.TEX
+(./ReturnTS.TEX
+("C:/Users/mahar/AppData/Local/Programs/MiKTeX 2.9/tex/generic/pictex/pictex.te
+x")
+! Undefined control sequence.
+l.4 \UseAMSsymbols
+                
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+[1{C:/Users/mahar/AppData/Local/MiKTeX/2.9/pdftex/config/pdftex.map}])<C:/Users/
+mahar/AppData/Local/Programs/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr10.pfb
+><C:/Users/mahar/AppData/Local/Programs/MiKTeX 2.9/fonts/type1/public/amsfonts/c
+m/cmr5.pfb><C:/Users/mahar/AppData/Local/Programs/MiKTeX 2.9/fonts/type1/public/
+amsfonts/cm/cmsy10.pfb>
+Output written on ReturnTS.pdf (1 page, 31260 bytes).
+
+PDF statistics: 18 PDF objects out of 1000 (max. 8388607)
+ 0 named destinations out of 1000 (max. 131072)
+ 1 words of extra memory for PDF output out of 10000 (max. 100000000)
+

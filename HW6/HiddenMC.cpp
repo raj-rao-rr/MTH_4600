@@ -14,16 +14,61 @@ double *R, *R2, *sigma;
 
 int main () {
 
+   double *s, *p, *ptilde, *g;
+   double sigma0, alpha;
+   double *AllocateMemory();
+
+   // Allocate necessary memory.
+   s = AllocateMemory ();
+   p = AllocateMemory ();
+   ptilde = AllocateMemory ();
+   g = AllocateMemory ();
+
+
    // Read in the time series data.
    GetData ();
 
    // Implement the hidden Markov chain model between here...
+
+   // assigning the free parameters 
+   sigma0 = 0.25;
+   alpha = 0.03;
+
+   for (int i = -1258; i <= 1258; i += 2) {
+       // the daily volatility when the walk is in state k
+       s[1259 + i] = sigma0 * exp(alpha * i);
+
+       // 
+   }
+
+   for (int i = 1; i <= 1258; ++i) {
+       printf("%8.4f\n", R[i]);
+   }
+
+
 
    // ... and here.
    // !!! When you have done this, get read "****" below in the Report() function.
 
    // Create TeX files for viewing results.
    Report ();
+   Exit();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// Allocate memory for an array with indices from -1260 to +1260.
+// This is a little more than needed.
+////////////////////////////////////////////////////////////////////////////////
+
+double *AllocateMemory () {
+
+   double *x;
+
+   x = (double *) calloc (2*1260 + 1, sizeof (double));
+
+   x += 1260;
+
+   return x;
 
 }
 
