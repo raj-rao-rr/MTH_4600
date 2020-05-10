@@ -1,0 +1,30 @@
+\input pictex
+\magnification=\magstep1
+\nopagenumbers
+\def\smallbullet{\scriptscriptstyle\bullet}
+\def\smallcircle{\scriptstyle\circ}
+
+
+\beginpicture
+\setcoordinatesystem units <.4truein, .00025truein> 
+\setplotarea x from 0 to 10, y from  0 to 10000
+\axis left 
+ label {$P(r)$} 
+ ticks   numbered from  0 to 10000 by 1000  
+ /
+
+\axis bottom
+label {$r$ (\%)}
+ticks  numbered from 0 to 10 by 1
+/
+
+\setplotsymbol ({$\cdot$})
+%\plot "prices.txt"
+
+\put {$\scriptscriptstyle\bullet$} at 5 3737.87
+
+\setdots
+%\plot "quadraticfit.txt"
+\endpicture
+
+\vfill\end

@@ -17,6 +17,7 @@ int main () {
    double *s, *p, *ptilde, *g;
    double sigma0, alpha;
    double *AllocateMemory();
+   int allocation;
 
    // Allocate necessary memory.
    s = AllocateMemory ();
@@ -34,17 +35,20 @@ int main () {
    sigma0 = 0.25;
    alpha = 0.03;
 
-   for (int i = -1258; i <= 1258; i += 2) {
-       // the daily volatility when the walk is in state k
+   for (int i = -1258; i <= 1258; ++i) {
+    
+       // the daily volatility when the walk is in state k (only positive probability are in steps of 2) 
        s[1259 + i] = sigma0 * exp(alpha * i);
 
-       // 
+       //// constructing the conditional volatility based on D
+       //if (-1257 <= i <= 1257) {
+       //    p[1259 + i] = (i);
+       //}
    }
 
-   for (int i = 1; i <= 1258; ++i) {
-       printf("%8.4f\n", R[i]);
+   for (int i = 1; i <= 2 * 1260 + 1; ++i) {
+       printf("%8.17f\n", s[i]);
    }
-
 
 
    // ... and here.
