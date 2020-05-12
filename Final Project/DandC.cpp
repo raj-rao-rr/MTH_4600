@@ -48,19 +48,58 @@ int main () {
    Calibrate (discount, sigma);
 
    // Value D & C's security on this lattice.
-   ValueSecurity ();
+   ValueSecurity (par);
 
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 // YOUR CODE GOES HERE.
 ////////////////////////////////////////////////////////////////////////////////
-void ValueSecurity () {
+void ValueSecurity (double* par) {
 
     // This code should value the security and generate an output
     // file Strategy.txt for viewing the optimal withdrawal strategy
     // using WithdrawalStrategy.tex.
-    
+    int m, t, i;
+    double C = 0.0; 
+    FILE* fps;
+
+    // Open the optimal withdrawal strategy files.
+    fpr = fopen("Strategy.txt", "w");
+
+    // Get the bond's maturity in years and convert to semiannual periods.
+    m = 2 * 30;
+
+    // Report the par rate for that maturity. (*NOTE WE HAVE A FLAT PAR YEILD CURVE*)
+    printf("The par yield for that maturity is %6.3f\n", 100.0 * par[m]);
+
+    // Value $100 face amount.
+    // Boundary conditions.
+    for (i = -m; i <= m; i += 2) {
+        V[m][i] = 0.0;
+    }
+
+    // Iterate backward recursively in time  
+    for (t = m; t >= 0; --t) {
+
+        // checks all nodes in pairs at time t
+        for (i = -t; i <= t; i += 2) {
+
+            // Discount the cash flow at time t
+            C = 300 - 5 * (m);
+
+            // Value today if the bond remains outstanding until period n+1.
+            V[n][i] = d[n][i] * (0.5 * (C + V[n + 1][i - 1]) + 0.5 * (C + V[n + 1][i + 1]));
+        }
+    }
+
+    // Close the output file.
+    fclose(fp);
+
+    printf("\n");
+    printf("The bond's value is %5.2f\n", V[0][0]);
+    Pause();
+
     return;
 
 }
