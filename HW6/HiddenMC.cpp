@@ -28,42 +28,44 @@ int main () {
    p = AllocateMemory ();
    ptilde = AllocateMemory ();
    g = AllocateMemory ();
-   annual_vol = (double*)calloc(1260, sizeof(double));
+   annual_vol = (double*) calloc(1260, sizeof(double));
 
    // Read in the time series data.
    GetData ();
 
-   // assigning the free parameters 
+   // Assign the free parameters 
    sigma0 = 0.25;
    alpha = 0.03;
 
-   // compute the stationary value of sqrt(2*pi)
+   // Compute the value of sqrt(2*pi) once and for all
    sqrt2pi = sqrt(2 * pi);
 
-   p[1258] = 1; // P_D_0 [E] = P [E | Omega] = P [E]
+   // P_D_0 [E] = P [E | Omega] = P [E]
+   p[0] = 1;
 
-   // incrementing the time process daily 
+   // Increment the time 
    for (t = 1; t <= 1258; ++t) {
         
        // Initialize certain variables
        k_hat_max = 0.0;   // k value that maximizes the conditional probability 
-       max_probT = 0.0;   // maximum value for the conditional probability at time t  
-       Z = 0.0;           // sum of terms up to g_k
+       max_probT = 0.0;   // Maximum value for the conditional distribution at time t  
+       Z = 0.0;           // Sum of  g_k through all states k with positive probability
 
-       // cyclig through states k with postive probability
+       // Cycle through states k with positive probability
        for (k = -t; k <= t; k += 2) {
 
-           // index for all the positions of k - including both postive and negative states
-           index = k + 1258;
+           // Index for all the positions of k
+           index = k;
 
            //////////////////////////////
            // 1. Volatility Estimation 
            //////////////////////////////
 
-           // estimating the volatility at time W_t from D_{t-1} -> P_D_{t-1} [W_t = k] 
+           // Estimate the conditional distribution of the location of the walk at time t from D_{t-1}
+           // p{k} = (p{k-1}+p{k+1}) / 2
            current_probT = 0.5 * (p[index + 1] + p[index - 1]);
 
-           // determine the argument value k that maximizes the probability P_D_{t-1} [W_t = k] 
+           // Determine which value of k  maximizes the probability P_D_{t-1} [W_t = k] 
            if (current_probT > max_probT) {
                k_hat_max = k;
                max_probT = current_probT;
@@ -73,21 +75,28 @@ int main () {
            // 2. Bayesian Updating 
            //////////////////////////////
 
-           s[index] = sigma0 * exp(alpha * k);                                                              // computing the expression for the s_k process
-           g[index] = 1 / (sqrt2pi * s[index]) * exp(-R2[t] / (2 * s[index] * s[index])) * current_probT;   // computing the value of g at state k
+           // Calculate sk
+           s[index] = sigma0 * exp(alpha * k);
+           // Calculate gk
+           g[index] = 1 / (sqrt2pi * s[index]) * exp(-R2[t] / (2 * s[index] * s[index])) * current_probT;
+           // Update Z, the sum of g across all states k
            Z += g[index];
 
        }
 
-       // the daily volatility at k-max (this is our Volatility estimate) 
+       // The daily volatility at k-max (this is our Volatility estimate) 
        sigma[t] = sigma0 * exp(alpha * k_hat_max);
-       annual_vol[t] = sqrt(252) * sigma[t];       // used to create a timeseries plot of the annualized volatility 
-       printf("Annualzied volatility at time %4d is -> %3.4f\n", t, sqrt(252)*sigma[t]);
 
-       // reassigning the values of p with new posterior p-tilde
+       // Annualized volatility used to create a timeseries plot of the volatility
+       annual_vol[t] = sqrt(252) * sigma[t]; 
+       printf("At time %4d, k_hat is %3.0f and the annualized volatility is -> %3.4f\n", t, k_hat_max, sqrt(252)*sigma[t]);
+
+       // Reassign the values of p with new posterior p-tilde
        for (i = -t; i <= t; i += 2) {
-           ptilde[i + 1258] = g[i + 1258] / Z;     // ptilde as constructed from the conditional probability P_D_{t-1} [R_t = r_t | W_t = k] * P_D_{t-1} [W_t = k] / P_D_{t-1} [R_t = r_t] 
-           p[i + 1258] = ptilde[i + 1258];
+           // ptilde as constructed from the conditional probability P_D_{t-1} [R_t = r_t | W_t = k] * P_D_{t-1} [W_t = k] / P_D_{t-1} [R_t = r_t]
+           ptilde[i] = g[i] / Z; 
+           // Current ptilde's become p's at t+1
+           p[i] = ptilde[i];
        }
 
    }
@@ -95,7 +104,6 @@ int main () {
    // Create TeX files for viewing results.
    Report ();
 
-   // Allows user to cancel the program 
    Exit();
 }
 
@@ -127,7 +135,7 @@ void GetData () {
    char input[100];
    FILE *fp;
 
-   fp = fopen ("XOM5YrsDaily.txt", "r");
+   fp = fopen ("/Users/Paul/Desktop/MTH 4600/Visual Studio Code Folder/HW6 - new/XOM5YrsDaily.txt", "r");
 
    // Read in the file description.
    fgets (input, 99, fp);
@@ -161,8 +169,8 @@ void Report () {
    FILE *fp1, *fp2;
 
 
-   fp1 = fopen ("HistEmpVols.txt", "w");
-   fp2 = fopen ("StandardizedXOM.txt", "w");
+   fp1 = fopen ("/Users/Paul/Desktop/MTH 4600/Visual Studio Code Folder/HW6 - new/HistEmpVols.txt", "w");
+   fp2 = fopen ("/Users/Paul/Desktop/MTH 4600/Visual Studio Code Folder/HW6 - new/StandardizedXOM.txt", "w");
 
    // Start at day 51.
    for (t = 51; t <= 1258; t++) {
