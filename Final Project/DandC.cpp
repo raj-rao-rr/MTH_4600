@@ -1,6 +1,6 @@
 
 // Found below the main program:
-void     ValueSecurity ();
+void     ValueSecurity (double *);
 void     Calibrate (double *, double);
 double **AllocateLatticeArray ();
 double   ValueZero (int);
@@ -53,19 +53,19 @@ int main () {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// YOUR CODE GOES HERE.
+// Valuing the price of the security
 ////////////////////////////////////////////////////////////////////////////////
 void ValueSecurity (double* par) {
 
     // This code should value the security and generate an output
     // file Strategy.txt for viewing the optimal withdrawal strategy
     // using WithdrawalStrategy.tex.
-    int m, t, i;
-    double C = 0.0; 
+    int m, t, i, called;
+    double r, C = 0.0; 
     FILE* fps;
 
     // Open the optimal withdrawal strategy files.
-    fpr = fopen("Strategy.txt", "w");
+    fps = fopen("Strategy.txt", "w");
 
     // Get the bond's maturity in years and convert to semiannual periods.
     m = 2 * 30;
@@ -73,7 +73,6 @@ void ValueSecurity (double* par) {
     // Report the par rate for that maturity. (*NOTE WE HAVE A FLAT PAR YEILD CURVE*)
     printf("The par yield for that maturity is %6.3f\n", 100.0 * par[m]);
 
-    // Value $100 face amount.
     // Boundary conditions.
     for (i = -m; i <= m; i += 2) {
         V[m][i] = 0.0;
@@ -89,16 +88,43 @@ void ValueSecurity (double* par) {
             C = 300 - 5 * (m);
 
             // Value today if the bond remains outstanding until period n+1.
-            V[n][i] = d[n][i] * (0.5 * (C + V[n + 1][i - 1]) + 0.5 * (C + V[n + 1][i + 1]));
+            V[t][i] = d[t][i] * (0.5 * (C + V[t + 1][i - 1]) + 0.5 * (C + V[t + 1][i + 1]));
+
+            //////////////////////////////////
+            // Excerising fixed income contract   
+            //////////////////////////////////
+            if (V[t][i] > 100.0) {
+                V[t][i] = 100.0;
+                called = 1;
+            }
+            else {
+                called = 0;
+            }
+            
+            //////////////////////////////////
+            // Report the option withdraw strategy for viewing with TeX software.
+            // Show only for short rates r == 5%, which corresponds to
+            //    d[n][i] == exp(-0.05*0.5)
+            //////////////////////////////////
+            if (d[t][i] == exp(-0.05*0.5)) {
+                r = -200.0 * log(d[t][i]);
+                if (called) {
+                    fprintf(fps, "\\put{$\\scriptscriptstyle\\bullet$} at %5.1f  %6.2f\n", 0.5 * t, r);
+                }
+                else {
+                    fprintf(fps, "\\put{$\\scriptscriptstyle\\circ$} at %5.1f  %6.2f\n", 0.5 * t, r);
+                }
+            }
+
         }
     }
 
     // Close the output file.
-    fclose(fp);
+    fclose(fps);
 
     printf("\n");
     printf("The bond's value is %5.2f\n", V[0][0]);
-    Pause();
+    Exit();
 
     return;
 
