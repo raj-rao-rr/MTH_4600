@@ -4,6 +4,8 @@ void     ValueSecurity (double *);
 void     Calibrate (double *, double);
 double **AllocateLatticeArray ();
 double   ValueZero (int);
+double duration(double&, double&, double&, double&);
+double convexity(double&);
 
 #include "Functions.h"
 
@@ -50,6 +52,23 @@ int main () {
    // Value D & C's security on this lattice.
    ValueSecurity (par);
 
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+// Calculating the fixed income "greeks" 
+////////////////////////////////////////////////////////////////////////////////
+double duration(double& pBase, double& pPlus, double& pMinus, double& deltaR) {
+    double dur;
+    dur = (-1 / pBase) * (pPlus - pMinus) / (2 * deltaR);
+    return dur; 
+}
+
+
+double convexity(double& pBase, double& pPlus, double& pMinus, double& deltaR) {
+    double conv;
+    conv = (1 / pBase) * (pPlus - 2*pBase +pMinus) / (deltaR * deltaR);
+    return conv;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
