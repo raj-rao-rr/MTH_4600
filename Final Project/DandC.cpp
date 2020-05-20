@@ -1,11 +1,12 @@
 
 // Found below the main program:
-void     ValueSecurity (double *);
+double   ValueSecurity (int);
 void     Calibrate (double *, double);
+void     ReCalibrate(double&, double&);
 double **AllocateLatticeArray ();
 double   ValueZero (int);
-double duration(double&, double&, double&, double&);
-double convexity(double&);
+double   duration(double&, double&);
+double   convexity(double&);
 
 #include "Functions.h"
 
@@ -16,7 +17,7 @@ double **V=NULL;       // State-dependent lattice values of future cash flow.
 int main () {
 
    int n;
-   double sigma, r;
+   double sigma, r, i, deltaR, calculated_duration, calculated_convexity;
    double *par, *discount, *zero, *forward;
 
    // Allocate memory for term structure data.
@@ -28,42 +29,116 @@ int main () {
    // Get memory for valuation.
    V = AllocateLatticeArray ();
 
-   // Get the user specified par curve.
-   r = GetDouble ("What is the flat par interest rate in percent?... ");
+   ////////////////////////////////////////////////////////////////////////////////
+   // Part 1
+   ////////////////////////////////////////////////////////////////////////////////
 
-   // Convert to a decimal and populate the par curve.
-   r /= 100.0;
-   for (n = 1; n <= 60; n++) {
+   for (i = 0; i <= 10; ++i){ 
+      // Get the user specified par curve.
+      r = i; //5; //GetDouble ("What is the flat par interest rate in percent?... ");
+
+      // Convert to a decimal and populate the par curve.
+      r /= 100.0;
+      for (n = 1; n <= 60; n++) {
+         par[n] = r;
+      }
+
+      // Calculate the corresponding discount function.
+      ComputeCurves (par, discount, zero, forward);
+
+      // Get the volatility parameter.
+      sigma = 25; //24.72958; //GetDouble ("What is the short-rate volatility in percent?... ");
+
+      // Convert to a decimal.
+      sigma /= 100.0;
+
+      // Calibrate the Salomon binomial lattice to explain the discount function.
+      Calibrate (discount, sigma);
+
+      printf ("For r = %5.2f percent, ", r*100);
+      // Value D & C's security on this lattice only when r = 5%
+      if (r != 5){
+         printf ("the security's value is %5.2f\n", ValueSecurity (0));
+      } else {
+         printf ("the security's value is %5.2f\n", ValueSecurity (1));
+      }
+   }
+
+   printf ("\n\n\nPart 1 done\n\n\n");
+   
+   
+   ////////////////////////////////////////////////////////////////////////////////
+   // Part 2
+   ////////////////////////////////////////////////////////////////////////////////
+
+   
+   
+   r = 5;             // in percent
+   r /= 100.0;        // nominal
+   deltaR = 100.0;    // in bps
+   deltaR /= 10000.0; // nominal
+
+   calculated_duration = duration(r, deltaR);
+   
+   printf ("For r = %5.2f percent ", r * 100.0);
+   printf ("and deltaR = %5.2f bps, ", deltaR * 10000.0);
+   printf ("the calculated duration is %5.2f\n", calculated_duration );
+
+   r = 5;             // in percent
+   r /= 100.0;        // nominal
+   deltaR = 1.0;    // in bps
+   deltaR /= 10000.0; // nominal
+
+   calculated_duration = duration(r, deltaR);
+   
+   printf ("For r = %5.2f percent ", r * 100.0);
+   printf ("and deltaR = %5.2f bps, ", deltaR * 10000.0);
+   printf ("the calculated duration is %5.2f\n", calculated_duration );
+
+
+
+}
+
+double duration(double& r, double& deltaR) {
+   double sigma, new_r, pBase, pPlus, pMinus, dur;
+
+   sigma  = 25.0;
+
+   // pBase
+   ReCalibrate(r, sigma);
+   pBase = ValueSecurity (0);
+
+   // pPlus
+   new_r = r + deltaR;
+   ReCalibrate(new_r, sigma);
+   pPlus = ValueSecurity (0);
+
+   // pMinus
+   new_r = r - deltaR;
+   ReCalibrate(new_r, sigma);
+   pPlus = ValueSecurity (0);
+
+   dur = (-1 / pBase) * (pPlus - pMinus) / (2.0 * deltaR);
+   return dur; 
+}
+
+void ReCalibrate(double& r, double& sigma){
+   double *par, *discount, *zero, *forward;
+
+   par      = List(60);
+   discount = List(60);
+   zero     = List(60);
+   forward  = List(60);
+
+   sigma = 25.0 / 100.0;
+
+   for (int n = 1; n <= 60; n++) {
       par[n] = r;
    }
 
-   // Calculate the corresponding discount function.
    ComputeCurves (par, discount, zero, forward);
-
-   // Get the volatility parameter.
-   sigma = GetDouble ("What is the short-rate volatility in percent?... ");
-
-   // Convert to a decimal.
-   sigma /= 100.0;
-
-   // Calibrate the Salomon binomial lattice to explain the discount function.
    Calibrate (discount, sigma);
-
-   // Value D & C's security on this lattice.
-   ValueSecurity (par);
-
 }
-
-
-////////////////////////////////////////////////////////////////////////////////
-// Calculating the fixed income "greeks" 
-////////////////////////////////////////////////////////////////////////////////
-double duration(double& pBase, double& pPlus, double& pMinus, double& deltaR) {
-    double dur;
-    dur = (-1 / pBase) * (pPlus - pMinus) / (2 * deltaR);
-    return dur; 
-}
-
 
 double convexity(double& pBase, double& pPlus, double& pMinus, double& deltaR) {
     double conv;
@@ -72,82 +147,93 @@ double convexity(double& pBase, double& pPlus, double& pMinus, double& deltaR) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// Valuing the price of the security
+// YOUR CODE GOES HERE.
 ////////////////////////////////////////////////////////////////////////////////
-void ValueSecurity (double* par) {
+double ValueSecurity (int plot) {
 
-    // This code should value the security and generate an output
-    // file Strategy.txt for viewing the optimal withdrawal strategy
-    // using WithdrawalStrategy.tex.
-    int m, t, i, called;
-    double r, C = 0.0; 
-    FILE* fps;
+   int n, i, m, called;
+   double C, coupon, r, accumulated_cash;
+   FILE *fp;
 
-    // Open the optimal withdrawal strategy files.
-    fps = fopen("Strategy.txt", "w");
+   if (plot == 1){
+      // Open output file to contain the call option exercise strategy.
+      fp = fopen ("Strategy.txt", "w");
+   }
 
-    // Get the bond's maturity in years and convert to semiannual periods.
-    m = 2 * 30;
+   // Get the bond's maturity in years and convert to semiannual periods.
+   m  = 30; //GetInteger ("What is the bond's maturity in years (integer <= 30, please)?... ");
+   m *= 2;
 
-    // Report the par rate for that maturity. (*NOTE WE HAVE A FLAT PAR YEILD CURVE*)
-    printf("The par yield for that maturity is %6.3f\n", 100.0 * par[m]);
+   // Value $100 face amount.
+   // Boundary conditions.
+   for (i = -m; i <= m; i += 2) {
+      //         60 * (300 - 5 * (60-1) / 2) = 9150
+      V[m][i] = (m) * (300 - 5.0 * (m-1) / 2.0);
+   }
 
-    // Boundary conditions.
-    for (i = -m; i <= m; i += 2) {
-        V[m][i] = 0.0;
-    }
+   // Iterate backward recursively.
+   for (n = m-1; n >= 0; n--) {
 
-    // Iterate backward recursively in time  
-    for (t = m; t >= 0; --t) {
+      accumulated_cash = (n+1) * (300 - (5.0 * n / 2.0) );
 
-        // checks all nodes in pairs at time t
-        for (i = -t; i <= t; i += 2) {
+      for (i = -n; i <= n; i += 2) {
 
-            // Discount the cash flow at time t
-            C = 300 - 5 * (m);
+         // Value today if the security remains outstanding until period n+1.
+         V[n][i] = d[n][i] * (V[n+1][i-1] + V[n+1][i+1]) / 2.0 ;
 
-            // Value today if the bond remains outstanding until period n+1.
-            V[t][i] = d[t][i] * (0.5 * (C + V[t + 1][i - 1]) + 0.5 * (C + V[t + 1][i + 1]));
+         //*********************************************************************
+         // See if the security should be called.
+         // If the value of the accumulated cash flow is higher than
+         // the value today if the security remains outstanding until period n+1,
+         // the security should be called.
+         if (accumulated_cash > V[n][i]){
+            V[n][i] = accumulated_cash;
+            called = 1;
+         } else {
+            called = 0;
+         }
+         //*********************************************************************
 
-            //////////////////////////////////
-            // Excerising fixed income contract   
-            //////////////////////////////////
-            if (V[t][i] > 100.0) {
-                V[t][i] = 100.0;
-                called = 1;
+         // Report the option exercise strategy for viewing with TeX software.
+         // Show only for short rates r <= 15%, which corresponds to
+         //    d[n][i] >= exp(-0.15*0.5) = 0.927743.
+         if (plot == 1){
+            if (d[n][i] >= 0.927743) {
+               r = -200.0 * log (d[n][i]);
+               if (called) {
+                  fprintf (fp, "\\put{$\\scriptscriptstyle\\bullet$} at %5.1f  %6.2f\n", 0.5*n, r);
+               } else {
+                  fprintf (fp, "\\put{$\\scriptscriptstyle\\circ$} at %5.1f  %6.2f\n", 0.5*n, r);
+               }
             }
-            else {
-                called = 0;
-            }
-            
-            //////////////////////////////////
-            // Report the option withdraw strategy for viewing with TeX software.
-            // Show only for short rates r == 5%, which corresponds to
-            //    d[n][i] == exp(-0.05*0.5)
-            //////////////////////////////////
-            if (d[t][i] == exp(-0.05*0.5)) {
-                r = -200.0 * log(d[t][i]);
-                if (called) {
-                    fprintf(fps, "\\put{$\\scriptscriptstyle\\bullet$} at %5.1f  %6.2f\n", 0.5 * t, r);
-                }
-                else {
-                    fprintf(fps, "\\put{$\\scriptscriptstyle\\circ$} at %5.1f  %6.2f\n", 0.5 * t, r);
-                }
-            }
+         }
 
-        }
-    }
+      }
+   }
 
-    // Close the output file.
-    fclose(fps);
-
-    printf("\n");
-    printf("The bond's value is %5.2f\n", V[0][0]);
-    Exit();
-
-    return;
-
+   if (plot == 1){
+      // Close the output file.
+      fclose (fp);
+   }
+   
+   return V[0][0];
 }
+
+////////////////////////////////////////////////////////////////////////////////
+// Calculating the fixed income "greeks" 
+////////////////////////////////////////////////////////////////////////////////
+//double duration(double& pBase, double& pPlus, double& pMinus, double& deltaR) {
+//    double dur;
+//    dur = (-1 / pBase) * (pPlus - pMinus) / (2 * deltaR);
+//    return dur; 
+//}
+
+
+//double convexity(double& pBase, double& pPlus, double& pMinus, double& deltaR) {
+//    double conv;
+//    conv = (1 / pBase) * (pPlus - 2*pBase +pMinus) / (deltaR * deltaR);
+//    return conv;
+//}
 
 ////////////////////////////////////////////////////////////////////////////////
 // This function calibrates the state-dependent single-period discount
@@ -222,8 +308,8 @@ void Calibrate (double *discount, double sigma) {
    // Close the output files.
    fclose (fpr);
 
-   printf ("View the lattice structure with Curves.tex.\n");
-   Pause ();
+   // printf ("View the lattice structure with Curves.tex.\n");
+   //Pause ();
 
    return;
 
