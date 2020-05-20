@@ -86,7 +86,7 @@ int main () {
 
    r = 5;             // in percent
    r /= 100.0;        // nominal
-   deltaR = 1.0;    // in bps
+   deltaR = 1.0;      // in bps
    deltaR /= 10000.0; // nominal
 
    calculated_duration = duration(r, deltaR);
@@ -96,7 +96,7 @@ int main () {
    printf ("the calculated duration is %5.2f\n", calculated_duration );
 
 
-
+   Exit();
 }
 
 double duration(double& r, double& deltaR) {
@@ -219,21 +219,6 @@ double ValueSecurity (int plot) {
    return V[0][0];
 }
 
-////////////////////////////////////////////////////////////////////////////////
-// Calculating the fixed income "greeks" 
-////////////////////////////////////////////////////////////////////////////////
-//double duration(double& pBase, double& pPlus, double& pMinus, double& deltaR) {
-//    double dur;
-//    dur = (-1 / pBase) * (pPlus - pMinus) / (2 * deltaR);
-//    return dur; 
-//}
-
-
-//double convexity(double& pBase, double& pPlus, double& pMinus, double& deltaR) {
-//    double conv;
-//    conv = (1 / pBase) * (pPlus - 2*pBase +pMinus) / (deltaR * deltaR);
-//    return conv;
-//}
 
 ////////////////////////////////////////////////////////////////////////////////
 // This function calibrates the state-dependent single-period discount
