@@ -9,19 +9,18 @@ void     ReCalibrate(double&, double&);
 double **AllocateLatticeArray ();
 double   ValueZero (int);
 std::pair<double, double> interest_rate_risk(double&, double&);
-double   duration(double&, double&);
-double   convexity(double&, double&);
 
 
 // Global variables:
 double **d;            // The state-dependent single-period discount factors.
 double **V=NULL;       // State-dependent lattice values of future cash flow.
 
+
 int main () {
 
    int n;
    double sigma, r, i, deltaR;
-   std::pair<double, double> risk_calculation;
+   std::pair<double, double> risk_calculation_100, risk_calculation_1;
    double *par, *discount, *zero, *forward;
 
    // Allocate memory for term structure data.
@@ -78,33 +77,36 @@ int main () {
    
    r = 5;             // in percent
    r /= 100.0;        // nominal
+
+   // the 100bps shift in interest rates
    deltaR = 100.0;    // in bps
    deltaR /= 10000.0; // nominal
 
-   risk_calculation = interest_rate_risk(r, deltaR);
+   risk_calculation_100 = interest_rate_risk(r, deltaR);
    
-   printf ("For r = %5.2f percent ", r * 100.0);
-   printf ("and deltaR = %5.2f bps, ", deltaR * 10000.0);
-   printf ("the calculated duration is %5.2f\n", risk_calculation.first);
-
-   printf("For r = %5.2f percent ", r * 100.0);
-   printf("and deltaR = %5.2f bps, ", deltaR * 10000.0);
-   printf("the calculated convexity is %5.2f\n", risk_calculation.second);
-
-   r = 5;             // in percent
-   r /= 100.0;        // nominal
+   // the 1bps shift in interest rates
    deltaR = 1.0;      // in bps
    deltaR /= 10000.0; // nominal
 
-   risk_calculation = interest_rate_risk(r, deltaR);
-   
-   printf("For r = %5.2f percent ", r * 100.0);
-   printf("and deltaR = %5.2f bps, ", deltaR * 10000.0);
-   printf("the calculated duration is %5.2f\n", risk_calculation.first);
+   risk_calculation_1 = interest_rate_risk(r, deltaR);
 
    printf("For r = %5.2f percent ", r * 100.0);
    printf("and deltaR = %5.2f bps, ", deltaR * 10000.0);
-   printf("the calculated convexity is %5.2f\n", risk_calculation.second);
+   printf("the calculated duration is %5.2f\n", risk_calculation_100.first);
+
+   printf("For r = %5.2f percent ", r * 100.0);
+   printf("and deltaR = %5.2f bps, ", deltaR * 10000.0);
+   printf("the calculated duration is %5.2f\n", risk_calculation_1.first);
+
+   printf("\n");
+
+   printf("For r = %5.2f percent ", r * 100.0);
+   printf("and deltaR = %5.2f bps, ", deltaR * 10000.0);
+   printf("the calculated convexity is %5.2f\n", risk_calculation_100.second);
+  
+   printf("For r = %5.2f percent ", r * 100.0);
+   printf("and deltaR = %5.2f bps, ", deltaR * 10000.0);
+   printf("the calculated convexity is %5.2f\n", risk_calculation_1.second);
 
 
    ////////////////////////////////////////////////////////////////////////////////
@@ -116,6 +118,7 @@ int main () {
    Exit();
 }
 
+// computes both the duration and convexity of a bond
 std::pair<double, double> interest_rate_risk(double& r, double& deltaR) {
     std::pair<double, double> dur_cov;
     double sigma, new_r, pBase, pPlus, pMinus, dur, cov;
@@ -146,54 +149,6 @@ std::pair<double, double> interest_rate_risk(double& r, double& deltaR) {
     return dur_cov;
 }
 
-// computes the duration of a given bond
-double duration(double& r, double& deltaR) {
-   double sigma, new_r, pBase, pPlus, pMinus, dur;
-
-   sigma  = 25.0;
-
-   // pBase (the base line formula for the computation)
-   ReCalibrate(r, sigma);
-   pBase = ValueSecurity (0);
-
-   // pPlus (adding a factor of delta r)
-   new_r = r + deltaR;
-   ReCalibrate(new_r, sigma);
-   pPlus = ValueSecurity (0);
-
-   // pMinus (subtracting a factor of delta r)
-   new_r = r - deltaR;
-   ReCalibrate(new_r, sigma);
-   pMinus = ValueSecurity (0);
-
-   dur = (-1 / pBase) * (pPlus - pMinus) / (2.0 * deltaR);
-   return dur; 
-}
-
-// computes the convexity of a given bond 
-double convexity(double& r, double& deltaR) {
-    double sigma, new_r, pBase, pPlus, pMinus, con;
-
-    sigma = 25.0;
-
-    // pBase
-    ReCalibrate(r, sigma);
-    pBase = ValueSecurity(0);
-
-    // pPlus
-    new_r = r + deltaR;
-    ReCalibrate(new_r, sigma);
-    pPlus = ValueSecurity(0);
-
-    // pMinus
-    new_r = r - deltaR;
-    ReCalibrate(new_r, sigma);
-    pMinus = ValueSecurity(0);
-
-    con = (1 / pBase) * (pPlus - 2 * pBase + pMinus) / (deltaR * deltaR);
-    return con;
-}
-
 
 void ReCalibrate(double& r, double& sigma){
    double *par, *discount, *zero, *forward;
@@ -213,11 +168,6 @@ void ReCalibrate(double& r, double& sigma){
    Calibrate (discount, sigma);
 }
 
-double convexity(double& pBase, double& pPlus, double& pMinus, double& deltaR) {
-    double conv;
-    conv = (1 / pBase) * (pPlus - 2*pBase +pMinus) / (deltaR * deltaR);
-    return conv;
-}
 
 ////////////////////////////////////////////////////////////////////////////////
 // YOUR CODE GOES HERE.

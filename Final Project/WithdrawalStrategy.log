@@ -1,16 +1,14 @@
 This is LuaTeX, Version 1.11.2 (MiKTeX 2.9.7300 64-bit)  (format=luatex 2020.2.12)  20 MAY 2020 21:26
  restricted system commands enabled.
-**Price.TEX
-(./Price.TEX
+**WithdrawalStrategy.TEX
+(./WithdrawalStrategy.TEX
 ("C:/Users/mahar/AppData/Local/Programs/MiKTeX 2.9/tex/generic/pictex/pictex.te
 x") [1{C:/Users/mahar/AppData/Local/MiKTeX/2.9/pdftex/config/pdftex.map}])<C:/Us
-ers/mahar/AppData/Local/Programs/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmmi1
-0.pfb><C:/Users/mahar/AppData/Local/Programs/MiKTeX 2.9/fonts/type1/public/amsfo
-nts/cm/cmr10.pfb><C:/Users/mahar/AppData/Local/Programs/MiKTeX 2.9/fonts/type1/p
-ublic/amsfonts/cm/cmsy5.pfb>
-Output written on Price.pdf (1 page, 28840 bytes).
+ers/mahar/AppData/Local/Programs/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr10
+.pfb>
+Output written on WithdrawalStrategy.pdf (1 page, 14383 bytes).
 
-PDF statistics: 18 PDF objects out of 1000 (max. 8388607)
+PDF statistics: 10 PDF objects out of 1000 (max. 8388607)
  0 named destinations out of 1000 (max. 131072)
  1 words of extra memory for PDF output out of 10000 (max. 100000000)
 
