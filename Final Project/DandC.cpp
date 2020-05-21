@@ -1,4 +1,5 @@
 #include <iostream>
+#include <vector>
 #include "Functions.h"
 
 
@@ -19,8 +20,9 @@ double **V=NULL;       // State-dependent lattice values of future cash flow.
 int main () {
 
    int n;
-   double sigma, r, i, deltaR;
+   double a, b, c, sigma, r, i, deltaR, price, function;
    std::pair<double, double> risk_calculation_100, risk_calculation_1;
+   std::vector<double> price_plot, quadratic_fit_100, quadratic_fit_1;
    double *par, *discount, *zero, *forward;
 
    // Allocate memory for term structure data.
@@ -37,6 +39,7 @@ int main () {
    // Part 1
    ////////////////////////////////////////////////////////////////////////////////
 
+   printf("Problem 1:n");
    for (i = 0; i <= 10; ++i){ 
       // Get the user specified par curve.
       r = i; //5; //GetDouble ("What is the flat par interest rate in percent?... ");
@@ -62,19 +65,24 @@ int main () {
       printf ("For r = %5.2f percent, ", r*100);
       // Value D & C's security on this lattice only when r = 5%
       if (r != 5){
-         printf ("the security's value is %5.2f\n", ValueSecurity (0));
+          price = ValueSecurity(0);
+          printf ("the security's value is %5.2f\n", price);
       } else {
-         printf ("the security's value is %5.2f\n", ValueSecurity (1));
+          price = ValueSecurity(1);
+          printf ("the security's value is %5.2f\n", price);
       }
-   }
 
-   printf ("\n\n\nPart 1 done\n\n\n");
+      // track all prices created for provided interest rates
+      price_plot.push_back(price);
+   }
    
    
    ////////////////////////////////////////////////////////////////////////////////
    // Part 2 & 3 (Duration & Convexity)
    ////////////////////////////////////////////////////////////////////////////////
    
+   printf("\n\nProblem 2:\n");
+
    r = 5;             // in percent
    r /= 100.0;        // nominal
 
@@ -91,26 +99,53 @@ int main () {
    risk_calculation_1 = interest_rate_risk(r, deltaR);
 
    printf("For r = %5.2f percent ", r * 100.0);
-   printf("and deltaR = %5.2f bps, ", deltaR * 10000.0);
+   printf("and deltaR = %5.2f bps, ", 100.0);
    printf("the calculated duration is %5.2f\n", risk_calculation_100.first);
 
    printf("For r = %5.2f percent ", r * 100.0);
-   printf("and deltaR = %5.2f bps, ", deltaR * 10000.0);
+   printf("and deltaR = %5.2f bps, ", 1.0);
    printf("the calculated duration is %5.2f\n", risk_calculation_1.first);
 
-   printf("\n");
+   printf("\n\nProblem 3:\n");
 
    printf("For r = %5.2f percent ", r * 100.0);
-   printf("and deltaR = %5.2f bps, ", deltaR * 10000.0);
+   printf("and deltaR = %5.2f bps, ", 100.0);
    printf("the calculated convexity is %5.2f\n", risk_calculation_100.second);
   
    printf("For r = %5.2f percent ", r * 100.0);
-   printf("and deltaR = %5.2f bps, ", deltaR * 10000.0);
+   printf("and deltaR = %5.2f bps, ", 1.0);
    printf("the calculated convexity is %5.2f\n", risk_calculation_1.second);
 
 
    ////////////////////////////////////////////////////////////////////////////////
    // Part 4
+   ////////////////////////////////////////////////////////////////////////////////
+  
+   printf("\n\nProblem 4:\n");
+
+   // quadratic fit for 100 bps estimates
+   a = 0.5 * risk_calculation_100.second;       // half the convexity value at 5% rate (100bps)
+   b = risk_calculation_100.first;              // duration value for bond at 5% rate (100bps)
+   c = price_plot[5];                           // fair value price at 5% rate
+
+   for (i = 0; i <= 10; ++i) {
+       function = a * (i-0.05) * (i - 0.05) + b * (r -0.05) + c;
+       quadratic_fit_100.push_back(function);
+   }
+    
+   // quadratic fit for 1 bps estimate
+   a = 0.5 * risk_calculation_1.second;         // half the convexity value at 5% rate (1bps)
+   b = risk_calculation_1.first;                // duration value for bond at 5% rate (1bps)
+   c = price_plot[5];                           // fair value price at 5% rate
+
+   for (i = 0; i <= 10; ++i) {
+       function = a * (i - 0.05) * (i - 0.05) + b * (r - 0.05) + c;
+       quadratic_fit_1.push_back(function);
+   }
+
+
+   ////////////////////////////////////////////////////////////////////////////////
+   // Part 5
    ////////////////////////////////////////////////////////////////////////////////
 
 
