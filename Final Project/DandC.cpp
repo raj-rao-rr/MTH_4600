@@ -54,7 +54,7 @@ int main () {
 
       printf ("For r = %5.2f percent, ", r*100);
       // Value D & C's security on this lattice only when r = 5%
-      if (r != 5){
+      if (r*100 != 5.0){
          plot = 0;
          price = ValueSecurity(plot);
          printf ("the security's value is %5.2f\n", price);
@@ -62,7 +62,6 @@ int main () {
          plot = 1;
          price = ValueSecurity(plot);
          printf ("the security's value is %5.2f\n", price);
-         plot = 0;
       }
 
       // track all prices created for provided interest rates
@@ -139,46 +138,39 @@ int main () {
        quadratic_fit_1.push_back(function);
    }
 
-   for(int i=0; i < price_plot.size(); i++){
-      std::cout << price_plot.at(i) << ' ';
+   // Output the vector for each of the quadratic estimators 
+   printf("Quadratic fit vector (100bps)\n");
+   for(int i=0; i <= 10; i++){
+      std::cout << quadratic_fit_100[i] << ' ';
+   }
+   printf("\n\nQuadratic fit vector (1bps)\n");
+   for (int i = 0; i <= 10; i++) {
+       std::cout << quadratic_fit_1[i] << ' ';
    }
 
+   // prices plot vector being used 
    fp = fopen ("prices.txt", "w");
 
    for(int i=0; i < price_plot.size(); i++){
-    //  std::cout << price_plot.at(i) << ' ';
       fprintf (fp, "\\put {$\\scriptscriptstyle\\bullet$} at %d  %6.2f\n", 10-i, price_plot.at(i));
-      // fprintf (fp, "%d  %6.2f\n", 10-i, price_plot.at(i));
-
-     // \put {$\scriptscriptstyle\bullet$} at 5 3737.87
    }
    fclose (fp);
 
-   
+   // quadratic fit for 1 bps measure
    fp = fopen ("quadraticfit_1.txt", "w");
-
    for(int i=0; i < quadratic_fit_1.size(); i++){
-    //  std::cout << price_plot.at(i) << ' ';
-      // fprintf (fp, "\\put {$\\scriptscriptstyle\\bullet$} at %d  %6.2f\n", 10-i, price_plot.at(i));
       fprintf (fp, "%d  %6.2f\n", i, quadratic_fit_1.at(i));
-
-     // \put {$\scriptscriptstyle\bullet$} at 5 3737.87
    }
    fclose (fp);
 
+   // quadratic fit for 100 bps measure 
    fp = fopen ("quadraticfit_100.txt", "w");
    for(int i=0; i < quadratic_fit_1.size(); i++){
       fprintf (fp, "%d  %6.2f\n", i, quadratic_fit_100.at(i));
    }
    fclose (fp);
 
-   
-   ////////////////////////////////////////////////////////////////////////////////
-   // Part 5
-   ////////////////////////////////////////////////////////////////////////////////
-
-
-
+   printf("\n");
    Exit();
 }
 
@@ -238,7 +230,6 @@ double ValueSecurity (int& plot) {
    int n, i, m, called;
    double r, accumulated_cash;
    FILE *fp;
-   printf("%d\n", plot);
 
    if (plot == 1){
       // Open output file to contain the call option exercise strategy.
