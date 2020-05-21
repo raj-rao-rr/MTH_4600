@@ -78,12 +78,12 @@ int main () {
    r = 5.0;             // in percent
    r /= 100.0;          // nominal
 
+   sigma = 25.0;
+   sigma /= 100.0;
+
    // the 100bps shift in interest rates
    deltaR = 100.0;    // in bps
    deltaR /= 10000.0; // nominal
-
-   sigma = 25.0;
-   sigma /= 100.0;
 
    risk_calculation_100 = interest_rate_risk(r, deltaR, sigma);
    
@@ -117,11 +117,11 @@ int main () {
    ////////////////////////////////////////////////////////////////////////////////
   
    printf("\n\nProblem 4:\n");
-
+   printf("Price at 5.0 is %8.4f\n", price_plot[5]);
    // quadratic fit for 100 bps estimates
-   a = 0.5 * risk_calculation_100.second;       // half the convexity value at 5% rate (100bps)
-   b = risk_calculation_100.first;              // duration value for bond at 5% rate (100bps)
-   c = price_plot[5];                           // fair value price at 5% rate
+   a = 0.5 * risk_calculation_100.second * price_plot[5];       // half the convexity value at 5% rate (100bps)
+   b = risk_calculation_100.first * -price_plot[5];             // duration value for bond at 5% rate (100bps)
+   c = price_plot[5];                                           // fair value price at 5% rate
 
    for (i = 0; i <= 10; ++i) {
        function = a * (i - 5) * (i - 5) + b * (i - 5) + c;
@@ -129,9 +129,9 @@ int main () {
    }
     
    // quadratic fit for 1 bps estimate 
-   a = 0.5 * risk_calculation_1.second;         // half the convexity value at 5% rate (1bps)
-   b = risk_calculation_1.first;                // duration value for bond at 5% rate (1bps)
-   c = price_plot[5];                           // fair value price at 5% rate
+   a = 0.5 * risk_calculation_1.second * price_plot[5];         // half the convexity value at 5% rate (1bps)
+   b = risk_calculation_1.first * -price_plot[5];               // duration value for bond at 5% rate (1bps)
+   c = price_plot[5];                                           // fair value price at 5% rate
 
    for (i = 0; i <= 10; ++i) {
        function = a * (i - 5) * (i - 5) + b * (i - 5) + c;
