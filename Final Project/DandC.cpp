@@ -4,12 +4,12 @@
 
 
 // Found below the main program:
-double   ValueSecurity (int);
+double   ValueSecurity (int&);
 void     Calibrate (double *, double);
 void     ReCalibrate(double&, double&);
 double **AllocateLatticeArray ();
 double   ValueZero (int);
-std::pair<double, double> interest_rate_risk(double&, double&);
+std::pair<double, double> interest_rate_risk(double&, double&, double&);
 
 
 // Global variables:
@@ -19,11 +19,12 @@ double **V=NULL;       // State-dependent lattice values of future cash flow.
 
 int main () {
 
-   int n;
+   int n, plot;
    double a, b, c, sigma, r, i, deltaR, price, function;
    std::pair<double, double> risk_calculation_100, risk_calculation_1;
    std::vector<double> price_plot, quadratic_fit_100, quadratic_fit_1;
    double *par, *discount, *zero, *forward;
+   FILE *fp;
 
    // Allocate memory for term structure data.
    par      = List(60);
@@ -36,40 +37,32 @@ int main () {
    V = AllocateLatticeArray ();
 
    ////////////////////////////////////////////////////////////////////////////////
-   // Part 1 (Pricing)
+   // Part 1
    ////////////////////////////////////////////////////////////////////////////////
 
-   printf("Problem 1:n");
+   printf("Problem 1:\n");
    for (i = 0; i <= 10; ++i){ 
       // Get the user specified par curve.
       r = i; //5; //GetDouble ("What is the flat par interest rate in percent?... ");
-
-      // Convert to a decimal and populate the par curve.
-      r /= 100.0;
-      for (n = 1; n <= 60; n++) {
-         par[n] = r;
-      }
-
-      // Calculate the corresponding discount function.
-      ComputeCurves (par, discount, zero, forward);
+      r /= 100.0; // Convert to a decimal and populate the par curve.
 
       // Get the volatility parameter.
-      sigma = 25; //24.72958; //GetDouble ("What is the short-rate volatility in percent?... ");
+      sigma = 25.0; //24.72958; //GetDouble ("What is the short-rate volatility in percent?... ");
+      sigma /= 100.0; // Convert to a decimal.
 
-      // Convert to a decimal.
-      sigma /= 100.0;
-
-      // Calibrate the Salomon binomial lattice to explain the discount function.
-      Calibrate (discount, sigma);
+      ReCalibrate(r, sigma);
 
       printf ("For r = %5.2f percent, ", r*100);
       // Value D & C's security on this lattice only when r = 5%
       if (r != 5){
-          price = ValueSecurity(0);
-          printf ("the security's value is %5.2f\n", price);
+         plot = 0;
+         price = ValueSecurity(plot);
+         printf ("the security's value is %5.2f\n", price);
       } else {
-          price = ValueSecurity(1);
-          printf ("the security's value is %5.2f\n", price);
+         plot = 1;
+         price = ValueSecurity(plot);
+         printf ("the security's value is %5.2f\n", price);
+         plot = 0;
       }
 
       // track all prices created for provided interest rates
@@ -83,20 +76,23 @@ int main () {
    
    printf("\n\nProblem 2:\n");
 
-   r = 5;             // in percent
-   r /= 100.0;        // nominal
+   r = 5.0;             // in percent
+   r /= 100.0;          // nominal
 
    // the 100bps shift in interest rates
    deltaR = 100.0;    // in bps
    deltaR /= 10000.0; // nominal
 
-   risk_calculation_100 = interest_rate_risk(r, deltaR);
+   sigma = 25.0;
+   sigma /= 100.0;
+
+   risk_calculation_100 = interest_rate_risk(r, deltaR, sigma);
    
    // the 1bps shift in interest rates
    deltaR = 1.0;      // in bps
    deltaR /= 10000.0; // nominal
 
-   risk_calculation_1 = interest_rate_risk(r, deltaR);
+   risk_calculation_1 = interest_rate_risk(r, deltaR, sigma);
 
    printf("For r = %5.2f percent ", r * 100.0);
    printf("and deltaR = %5.2f bps, ", 100.0);
@@ -118,7 +114,7 @@ int main () {
 
 
    ////////////////////////////////////////////////////////////////////////////////
-   // Part 4 (Interpolation)
+   // Part 4
    ////////////////////////////////////////////////////////////////////////////////
   
    printf("\n\nProblem 4:\n");
@@ -129,57 +125,86 @@ int main () {
    c = price_plot[5];                           // fair value price at 5% rate
 
    for (i = 0; i <= 10; ++i) {
-       function = a * (i-0.05) * (i - 0.05) + b * (r -0.05) + c;
+       function = a * (i - 5) * (i - 5) + b * (i - 5) + c;
        quadratic_fit_100.push_back(function);
    }
     
-   // quadratic fit for 1 bps estimate
+   // quadratic fit for 1 bps estimate 
    a = 0.5 * risk_calculation_1.second;         // half the convexity value at 5% rate (1bps)
    b = risk_calculation_1.first;                // duration value for bond at 5% rate (1bps)
    c = price_plot[5];                           // fair value price at 5% rate
 
    for (i = 0; i <= 10; ++i) {
-       function = a * (i - 0.05) * (i - 0.05) + b * (r - 0.05) + c;
+       function = a * (i - 5) * (i - 5) + b * (i - 5) + c;
        quadratic_fit_1.push_back(function);
    }
 
+   for(int i=0; i < price_plot.size(); i++){
+      std::cout << price_plot.at(i) << ' ';
+   }
 
+   fp = fopen ("prices.txt", "w");
+
+   for(int i=0; i < price_plot.size(); i++){
+    //  std::cout << price_plot.at(i) << ' ';
+      fprintf (fp, "\\put {$\\scriptscriptstyle\\bullet$} at %d  %6.2f\n", 10-i, price_plot.at(i));
+      // fprintf (fp, "%d  %6.2f\n", 10-i, price_plot.at(i));
+
+     // \put {$\scriptscriptstyle\bullet$} at 5 3737.87
+   }
+   fclose (fp);
+
+   
+   fp = fopen ("quadraticfit_1.txt", "w");
+
+   for(int i=0; i < quadratic_fit_1.size(); i++){
+    //  std::cout << price_plot.at(i) << ' ';
+      // fprintf (fp, "\\put {$\\scriptscriptstyle\\bullet$} at %d  %6.2f\n", 10-i, price_plot.at(i));
+      fprintf (fp, "%d  %6.2f\n", i, quadratic_fit_1.at(i));
+
+     // \put {$\scriptscriptstyle\bullet$} at 5 3737.87
+   }
+   fclose (fp);
+
+   fp = fopen ("quadraticfit_100.txt", "w");
+   for(int i=0; i < quadratic_fit_1.size(); i++){
+      fprintf (fp, "%d  %6.2f\n", i, quadratic_fit_100.at(i));
+   }
+   fclose (fp);
+
+   
    ////////////////////////////////////////////////////////////////////////////////
    // Part 5
    ////////////////////////////////////////////////////////////////////////////////
 
-   // The two redundant cases are 1 and 60
-   // Forr k=1 our value at a given r is defined in our price plot, and 
-   // at a value of 60 we simply take the sum of the discounted cashflows
 
 
    Exit();
 }
 
 // computes both the duration and convexity of a bond
-std::pair<double, double> interest_rate_risk(double& r, double& deltaR) {
+std::pair<double, double> interest_rate_risk(double& r, double& deltaR, double& sigma) {
     std::pair<double, double> dur_cov;
-    double sigma, new_r, pBase, pPlus, pMinus, dur, cov;
-
-    sigma = 25.0;
+    double new_r, pBase, pPlus, pMinus, dur, cov;
+    int plot = 0;
 
     // pBase (the base line formula for the computation)
     ReCalibrate(r, sigma);
-    pBase = ValueSecurity(0);
+    pBase = ValueSecurity(plot);
 
     // pPlus (adding a factor of delta r)
     new_r = r + deltaR;
     ReCalibrate(new_r, sigma);
-    pPlus = ValueSecurity(0);
+    pPlus = ValueSecurity(plot);
 
     // pMinus (subtracting a factor of delta r)
     new_r = r - deltaR;
     ReCalibrate(new_r, sigma);
-    pMinus = ValueSecurity(0);
+    pMinus = ValueSecurity(plot);
 
     // compute both the duration and convexity
-    dur = (-1 / pBase) * (pPlus - pMinus) / (2.0 * deltaR);
-    cov = (1 / pBase) * (pPlus - 2 * pBase + pMinus) / (deltaR * deltaR);
+    dur = (-1.0 / pBase) * (pPlus - pMinus) / (2.0 * deltaR);
+    cov = (1.0 / pBase) * (pPlus - 2.0 * pBase + pMinus) / (deltaR * deltaR);
 
     // assigning the pair (tuple) to values for the duration and convexity
     dur_cov.first = dur; dur_cov.second = cov;
@@ -196,8 +221,6 @@ void ReCalibrate(double& r, double& sigma){
    zero     = List(60);
    forward  = List(60);
 
-   sigma = 25.0 / 100.0;
-
    for (int n = 1; n <= 60; n++) {
       par[n] = r;
    }
@@ -210,11 +233,12 @@ void ReCalibrate(double& r, double& sigma){
 ////////////////////////////////////////////////////////////////////////////////
 // YOUR CODE GOES HERE.
 ////////////////////////////////////////////////////////////////////////////////
-double ValueSecurity (int plot) {
+double ValueSecurity (int& plot) {
 
    int n, i, m, called;
-   double C, coupon, r, accumulated_cash;
+   double r, accumulated_cash;
    FILE *fp;
+   printf("%d\n", plot);
 
    if (plot == 1){
       // Open output file to contain the call option exercise strategy.

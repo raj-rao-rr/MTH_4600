@@ -1,0 +1,11 @@
+\put {$\scriptscriptstyle\bullet$} at 10  9150.00
+\put {$\scriptscriptstyle\bullet$} at 9  7142.80
+\put {$\scriptscriptstyle\bullet$} at 8  5855.89
+\put {$\scriptscriptstyle\bullet$} at 7  4943.26
+\put {$\scriptscriptstyle\bullet$} at 6  4262.56
+\put {$\scriptscriptstyle\bullet$} at 5  3737.87
+\put {$\scriptscriptstyle\bullet$} at 4  3322.68
+\put {$\scriptscriptstyle\bullet$} at 3  2987.57
+\put {$\scriptscriptstyle\bullet$} at 2  2711.92
+\put {$\scriptscriptstyle\bullet$} at 1  2482.26
+\put {$\scriptscriptstyle\bullet$} at 0  2287.64
