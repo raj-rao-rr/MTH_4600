@@ -117,14 +117,15 @@ int main () {
    ////////////////////////////////////////////////////////////////////////////////
   
    printf("\n\nProblem 4:\n");
-   printf("Price at 5.0 is %8.4f\n", price_plot[5]);
+   
    // quadratic fit for 100 bps estimates
    a = 0.5 * risk_calculation_100.second * price_plot[5];       // half the convexity value at 5% rate (100bps)
    b = risk_calculation_100.first * -price_plot[5];             // duration value for bond at 5% rate (100bps)
    c = price_plot[5];                                           // fair value price at 5% rate
-
+   
    for (i = 0; i <= 10; ++i) {
-       function = a * (i - 5) * (i - 5) + b * (i - 5) + c;
+       r = i / 100; 
+       function = a * (r - 0.05) * (r - 0.05) + b * (r - 0.05) + c;
        quadratic_fit_100.push_back(function);
    }
     
@@ -134,7 +135,8 @@ int main () {
    c = price_plot[5];                                           // fair value price at 5% rate
 
    for (i = 0; i <= 10; ++i) {
-       function = a * (i - 5) * (i - 5) + b * (i - 5) + c;
+       r = i / 100;
+       function = a * (r - 0.05) * (r - 0.05) + b * (r - 0.05) + c;
        quadratic_fit_1.push_back(function);
    }
 
