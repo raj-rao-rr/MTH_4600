@@ -42,6 +42,7 @@ int main () {
 
    printf("Problem 1:\n");
    for (i = 0; i <= 10; ++i){ 
+
       // Get the user specified par curve.
       r = i; //5; //GetDouble ("What is the flat par interest rate in percent?... ");
       r /= 100.0; // Convert to a decimal and populate the par curve.
@@ -53,6 +54,7 @@ int main () {
       ReCalibrate(r, sigma);
 
       printf ("For r = %5.2f percent, ", r*100);
+
       // Value D & C's security on this lattice only when r = 5%
       if (r*100 != 5.0){
          plot = 0;
@@ -119,56 +121,56 @@ int main () {
    printf("\n\nProblem 4:\n");
    
    // quadratic fit for 100 bps estimates
-   a = 0.5 * risk_calculation_100.second * price_plot[5];       // half the convexity value at 5% rate (100bps)
-   b = risk_calculation_100.first * -price_plot[5];             // duration value for bond at 5% rate (100bps)
-   c = price_plot[5];                                           // fair value price at 5% rate
+   a = 0.5 * risk_calculation_100.second * 3737.87;       // half the second derivative value at 5% rate (100bps)
+   b = risk_calculation_100.first * -3737.87;             // first derivative value for bond at 5% rate (100bps)
+   c = 3737.87;                                           // fair value price at 5% rate
    
-   for (i = 0; i <= 10; ++i) {
+   for (i = 0; i <= 10; ++i){ 
        r = i / 100; 
        function = a * (r - 0.05) * (r - 0.05) + b * (r - 0.05) + c;
        quadratic_fit_100.push_back(function);
    }
     
    // quadratic fit for 1 bps estimate 
-   a = 0.5 * risk_calculation_1.second * price_plot[5];         // half the convexity value at 5% rate (1bps)
-   b = risk_calculation_1.first * -price_plot[5];               // duration value for bond at 5% rate (1bps)
-   c = price_plot[5];                                           // fair value price at 5% rate
+   a = 0.5 * risk_calculation_1.second * 3737.87;         // half the second derivative value at 5% rate (1bps)
+   b = risk_calculation_1.first * -3737.87;               // first derivative value for bond at 5% rate (1bps)
+   c = 3737.87;                                           // fair value price at 5% rate
 
-   for (i = 0; i <= 10; ++i) {
+   for (i = 0; i <= 10; ++i){ 
        r = i / 100;
        function = a * (r - 0.05) * (r - 0.05) + b * (r - 0.05) + c;
        quadratic_fit_1.push_back(function);
    }
 
    // Output the vector for each of the quadratic estimators 
-   printf("Quadratic fit vector (100bps)\n");
-   for(int i=0; i <= 10; i++){
+   printf("\nQuadratic fit vector (100bps)\n");
+   for (i = 0; i <= 10; ++i){ 
       std::cout << quadratic_fit_100[i] << ' ';
    }
    printf("\n\nQuadratic fit vector (1bps)\n");
-   for (int i = 0; i <= 10; i++) {
+   for (i = 0; i <= 10; ++i){ 
        std::cout << quadratic_fit_1[i] << ' ';
    }
 
    // prices plot vector being used 
    fp = fopen ("prices.txt", "w");
 
-   for(int i=0; i < price_plot.size(); i++){
-      fprintf (fp, "\\put {$\\scriptscriptstyle\\bullet$} at %d  %6.2f\n", 10-i, price_plot.at(i));
+   for(int i = price_plot.size() - 1; i >= 0; --i){
+      fprintf (fp, "\\put {$\\scriptscriptstyle\\bullet$} at %6.2f  %6.4f\n", i, price_plot.at(i));
    }
    fclose (fp);
 
    // quadratic fit for 1 bps measure
    fp = fopen ("quadraticfit_1.txt", "w");
    for(int i=0; i < quadratic_fit_1.size(); i++){
-      fprintf (fp, "%d  %6.2f\n", i, quadratic_fit_1.at(i));
+      fprintf (fp, "%6.2f  %6.4f\n", i, quadratic_fit_1.at(i));
    }
    fclose (fp);
 
    // quadratic fit for 100 bps measure 
    fp = fopen ("quadraticfit_100.txt", "w");
    for(int i=0; i < quadratic_fit_1.size(); i++){
-      fprintf (fp, "%d  %6.2f\n", i, quadratic_fit_100.at(i));
+      fprintf (fp, "%6.2f  %6.4f\n", i, quadratic_fit_100.at(i));
    }
    fclose (fp);
 
@@ -276,7 +278,7 @@ double ValueSecurity (int& plot) {
          // Show only for short rates r <= 15%, which corresponds to
          //    d[n][i] >= exp(-0.15*0.5) = 0.927743.
          if (plot == 1){
-            if (d[n][i] >= 0.927743) {
+            if (d[n][i] >= exp(-0.005*0.5)) {
                r = -200.0 * log (d[n][i]);
                if (called) {
                   fprintf (fp, "\\put{$\\scriptscriptstyle\\bullet$} at %5.1f  %6.2f\n", 0.5*n, r);
